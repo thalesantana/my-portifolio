@@ -52,13 +52,7 @@ Directus will be available at `http://localhost:8055`. Default credentials: `adm
 
 In Directus: Settings → Users → Admin → Token → Generate and save to `.env` as `DIRECTUS_TOKEN`.
 
-**5. Seed content**
-
-```sh
-node --env-file=.env scripts/setup-directus.mjs
-```
-
-**6. Start the dev server**
+**5. Start the dev server**
 
 ```sh
 pnpm dev
@@ -75,7 +69,6 @@ Site runs at `http://localhost:4321`.
 | `pnpm preview` | Preview production build locally |
 | `docker compose up -d` | Start Directus + PostgreSQL |
 | `docker compose down` | Stop and remove containers |
-| `node --env-file=.env scripts/setup-directus.mjs` | Seed Directus with initial content |
 
 ## Content Management
 
