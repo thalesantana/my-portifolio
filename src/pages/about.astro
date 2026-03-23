@@ -1,0 +1,148 @@
+---
+export const prerender = true;
+
+import Footer from '../components/layout/Footer.astro';
+import Header from '../components/layout/Header.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getExperiences, getSiteSettings } from '../lib/directus';
+import { formatPeriod, sortExperiences } from '../lib/utils';
+
+const [settings, experiences] = await Promise.all([
+  getSiteSettings().catch(() => null),
+  getExperiences().catch(() => []),
+]);
+
+const sortedExperiences = sortExperiences(experiences);
+---
+
+<BaseLayout
+  title="About — Portfolio"
+  description="Background, experience and what I'm working on."
+>
+  <Header />
+
+  <main class="pt-32 pb-32">
+    <!-- ── INTRO ──────────────────────────────────── -->
+    <section class="max-w-7xl mx-auto px-6 mb-32">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
+        <!-- Left -->
+        <div>
+          <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4">About</p>
+          <h1 class="font-display text-6xl font-bold text-on-surface mb-8 leading-tight">
+            The Engineer<br />Behind the Work.
+          </h1>
+          <div class="text-on-surface-variant leading-relaxed space-y-4 max-w-lg">
+            {settings?.bio ? (
+              <p>{settings?.bio}</p>
+            ) : (
+              <p>
+                I'm a software engineer focused on building reliable, scalable systems.
+                I care deeply about architecture, developer experience, and the craft of engineering.
+              </p>
+            )}
+          </div>
+
+          {/* Social links */}
+          {(settings?.github || settings?.linkedin) && (
+            <div class="flex gap-6 mt-8">
+              {settings?.github && (
+                <a href={settings?.github} target="_blank" rel="noopener noreferrer"
+                  class="text-xs font-mono text-outline hover:text-primary tracking-widest uppercase transition-colors">
+                  GitHub →
+                </a>
+              )}
+              {settings?.linkedin && (
+                <a href={settings?.linkedin} target="_blank" rel="noopener noreferrer"
+                  class="text-xs font-mono text-outline hover:text-primary tracking-widest uppercase transition-colors">
+                  LinkedIn →
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
+        <!-- Right: stats/info block -->
+        <div class="grid grid-cols-2 gap-px bg-outline-variant/20">
+          {[
+            { label: 'Focus', value: 'Distributed Systems' },
+            { label: 'Based in', value: 'Remote' },
+            { label: 'Experience', value: `${new Date().getFullYear() - 2021}+ years` },
+            { label: 'Status', value: 'Open to work' },
+          ].map(({ label, value }) => (
+            <div class="bg-surface-low p-8">
+              <p class="text-xs font-mono text-outline tracking-widest uppercase mb-2">{label}</p>
+              <p class="font-display text-lg font-semibold text-on-surface">{value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ── EXPERIENCE TIMELINE ────────────────────── -->
+    <section class="bg-surface-low py-32">
+      <div class="max-w-7xl mx-auto px-6">
+        <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4">Career</p>
+        <h2 class="font-display text-4xl font-bold text-on-surface mb-16">Experience</h2>
+
+        {sortedExperiences.length > 0 ? (
+          <div class="relative">
+            <!-- Timeline line -->
+            <div class="absolute left-0 top-0 bottom-0 w-px bg-outline-variant/40 hidden lg:block"></div>
+
+            <div class="space-y-16">
+              {sortedExperiences.map((exp) => (
+                <div class="lg:pl-12 relative">
+                  <!-- Timeline dot -->
+                  <div class="absolute left-0 top-1.5 w-2 h-2 bg-primary hidden lg:block" style="transform: translateX(-3.5px);"></div>
+
+                  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Period -->
+                    <div class="lg:col-span-1">
+                      <p class="text-xs font-mono text-outline tracking-wider">
+                        {formatPeriod(exp.start_date, exp.end_date, exp.current)}
+                      </p>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="lg:col-span-3">
+                      <h3 class="font-display text-xl font-semibold text-on-surface mb-1">{exp.role}</h3>
+                      <p class="text-sm text-primary font-mono mb-4">{exp.company}</p>
+                      {exp.description && (
+                        <p class="text-on-surface-variant leading-relaxed mb-4">{exp.description}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p class="text-outline font-mono text-sm">Experience will appear here once added via Directus.</p>
+        )}
+      </div>
+    </section>
+
+    <!-- ── CONTACT ────────────────────────────────── -->
+    <section class="py-32">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="max-w-xl">
+          <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4">Contact</p>
+          <h2 class="font-display text-4xl font-bold text-on-surface mb-6">Get in touch.</h2>
+          <p class="text-on-surface-variant mb-8">
+            Whether it's a project, a job opportunity, or just a technical conversation — I'm always open to hearing from people building interesting things.
+          </p>
+          <a
+            href={`mailto:${settings?.email || 'contact@example.com'}`}
+            class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-on-primary hover:opacity-90 transition-opacity"
+            style="background: linear-gradient(135deg, #45dfa4, #006041);"
+          >
+            {settings?.email || 'contact@example.com'}
+            <span class="font-mono">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

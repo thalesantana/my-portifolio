@@ -1,0 +1,47 @@
+---
+const navLinks = [
+  { label: "Projects", href: "/projects" },
+  { label: "About", href: "/about" },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header
+  class="fixed top-0 left-0 right-0 z-50 border-b border-outline-variant/15 bg-surface/90 backdrop-blur-sm"
+>
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <!-- Logo / wordmark -->
+    <a
+      href="/"
+      class="font-display text-sm font-semibold tracking-widest text-primary uppercase"
+    >
+      &lt;portfolio /&gt;
+    </a>
+
+    <!-- Nav -->
+    <nav class="flex items-center gap-8">
+      {
+        navLinks.map(({ label, href }) => (
+          <a
+            href={href}
+            class={[
+              "text-xs font-medium tracking-wider uppercase transition-colors",
+              currentPath.startsWith(href)
+                ? "text-primary"
+                : "text-on-surface-variant hover:text-on-surface",
+            ].join(" ")}
+          >
+            {label}
+          </a>
+        ))
+      }
+      <a
+        href="mailto:contact@example.com"
+        class="text-xs font-medium tracking-wider uppercase border border-primary/30 text-primary px-4 py-2 hover:bg-primary/10 transition-colors"
+      >
+        Contact
+      </a>
+    </nav>
+  </div>
+</header>

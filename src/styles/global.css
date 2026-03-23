@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  /* Mono Archaic — Digital Blueprint Design System */
+
+  /* Surfaces */
+  --color-surface: #0c1322;
+  --color-surface-dim: #0c1322;
+  --color-surface-bright: #323949;
+  --color-surface-lowest: #070e1d;
+  --color-surface-low: #141b2b;
+  --color-surface-container: #191f2f;
+  --color-surface-high: #232a3a;
+  --color-surface-highest: #2e3545;
+
+  /* Primary */
+  --color-primary: #45dfa4;
+  --color-primary-container: #006041;
+  --color-on-primary: #003825;
+
+  /* Secondary */
+  --color-secondary: #8bd6b6;
+  --color-secondary-container: #005c43;
+  --color-on-secondary: #003828;
+  --color-on-secondary-container: #87d2b2;
+
+  /* Tertiary */
+  --color-tertiary: #95d3ba;
+  --color-tertiary-container: #1d5d49;
+
+  /* On-surface / text */
+  --color-on-surface: #dce2f7;
+  --color-on-surface-variant: #bec9c2;
+
+  /* Outline */
+  --color-outline: #89938d;
+  --color-outline-variant: #3f4944;
+
+  /* Error */
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+
+  /* Fonts */
+  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* Base reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-lowest);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-outline-variant);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline);
+}

@@ -1,0 +1,31 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-outline-variant/15 bg-surface-lowest mt-32">
+  <div
+    class="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-6"
+  >
+    <p class="text-xs text-outline tracking-wider font-mono">
+      &copy; {year} — Built with Astro + Directus
+    </p>
+    <div class="flex items-center gap-6">
+      <a
+        href="https://github.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-xs text-outline hover:text-primary tracking-wider uppercase transition-colors"
+      >
+        GitHub
+      </a>
+      <a
+        href="https://linkedin.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-xs text-outline hover:text-primary tracking-wider uppercase transition-colors"
+      >
+        LinkedIn
+      </a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,190 @@
+---
+export const prerender = true;
+
+import Footer from "../components/layout/Footer.astro";
+import Header from "../components/layout/Header.astro";
+import ProjectCard from "../components/ui/ProjectCard.astro";
+import TechChip from "../components/ui/TechChip.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getFeaturedProjects, getSiteSettings } from "../lib/directus";
+import { TECH_STACK_CATEGORIES } from "../lib/config";
+
+const [settings, featuredProjects] = await Promise.all([
+  getSiteSettings().catch(() => null),
+  getFeaturedProjects().catch(() => []),
+]);
+
+---
+
+<BaseLayout title="Portfolio — Software Engineer" description={settings?.role}>
+  <Header />
+
+  <main>
+    <!-- ── HERO ────────────────────────────────────── -->
+    <section
+      class="min-h-screen flex flex-col justify-center relative overflow-hidden pt-16"
+    >
+      <!-- Grid background -->
+      <div
+        class="absolute inset-0 opacity-[0.04]"
+        style="background-image: linear-gradient(#45dfa4 1px, transparent 1px), linear-gradient(90deg, #45dfa4 1px, transparent 1px); background-size: 80px 80px;"
+      >
+      </div>
+
+      <!-- Accent glow -->
+      <div
+        class="absolute top-1/4 left-1/3 w-96 h-96 rounded-full opacity-10 blur-[120px]"
+        style="background: radial-gradient(circle, #45dfa4, transparent);"
+      >
+      </div>
+
+      <div class="max-w-7xl mx-auto px-6 py-32 relative z-10">
+        <!-- Label -->
+        <p
+          class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-8"
+        >
+          {settings?.location || "Belo Horizonte, Brasil"} · Available for work
+        </p>
+
+        <!-- Headline -->
+        <h1
+          class="font-display font-bold leading-none tracking-tight mb-8"
+          style="font-size: clamp(3.5rem, 10vw, 8rem);"
+        >
+          <span class="block text-on-surface">Software</span>
+          <span class="block text-primary">Engineer.</span>
+        </h1>
+
+        <!-- Subline -->
+        <p
+          class="text-lg text-on-surface-variant max-w-xl mb-12 leading-relaxed"
+        >
+          {settings?.role}
+        </p>
+
+        <!-- CTAs -->
+        <div class="flex flex-wrap gap-4">
+          <a
+            href="/projects"
+            class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-on-primary hover:opacity-90 transition-opacity"
+            style="background: linear-gradient(135deg, #45dfa4, #006041);"
+          >
+            View Projects
+            <span class="font-mono">→</span>
+          </a>
+          <a
+            href="/about"
+            class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-primary border border-primary/30 hover:bg-primary/10 transition-colors"
+          >
+            About Me
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FEATURED PROJECTS ───────────────────────── -->
+    {
+      featuredProjects.length > 0 && (
+        <section class="bg-surface-low py-32">
+          <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-end justify-between mb-16">
+              <div>
+                <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-3">
+                  Selected Work
+                </p>
+                <h2 class="font-display text-4xl font-bold text-on-surface">
+                  Featured Projects
+                </h2>
+              </div>
+              <a
+                href="/projects"
+                class="text-sm font-medium text-primary hover:text-[#68fcbf] transition-colors font-mono"
+              >
+                All projects →
+              </a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-outline-variant/20">
+              {featuredProjects.map((project) => (
+                <ProjectCard project={project} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- ── SKILLS / STACK ─────────────────────────── -->
+    <section class="py-32">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+          <div>
+            <p
+              class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4"
+            >
+              Core Expertise
+            </p>
+            <h2
+              class="font-display text-4xl font-bold text-on-surface mb-6 leading-tight"
+            >
+              Architect-level<br />engineering.
+            </h2>
+            <p class="text-on-surface-variant leading-relaxed mb-8">
+              Specialized in distributed systems, cloud-native infrastructure,
+              and building high-throughput applications that scale.
+            </p>
+            <a
+              href="/about"
+              class="text-sm font-mono text-primary hover:text-[#68fcbf] transition-colors"
+            >
+              View experience →
+            </a>
+          </div>
+          <div class="grid grid-cols-2 gap-px bg-outline-variant/20">
+            {
+              TECH_STACK_CATEGORIES.map(({ category, stack }) => (
+                <div class="bg-surface-low p-6">
+                  <p class="text-xs font-mono text-outline tracking-wider uppercase mb-4">
+                    {category}
+                  </p>
+                  <div class="flex flex-wrap gap-2">
+                    {stack.map((tech) => (
+                      <TechChip label={tech} />
+                    ))}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── CONTACT CTA ─────────────────────────────── -->
+    <section class="bg-surface-low py-32">
+      <div class="max-w-7xl mx-auto px-6 text-center">
+        <p
+          class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4"
+        >
+          Get In Touch
+        </p>
+        <h2 class="font-display text-5xl font-bold text-on-surface mb-6">
+          Let's build something.
+        </h2>
+        <p class="text-on-surface-variant max-w-md mx-auto mb-12">
+          Open to new opportunities, collaborations, and interesting engineering
+          challenges.
+        </p>
+        <a
+          href={`mailto:${settings?.email || "contact@example.com"}`}
+          class="inline-flex items-center gap-3 px-8 py-4 font-medium text-on-primary hover:opacity-90 transition-opacity"
+          style="background: linear-gradient(135deg, #45dfa4, #006041);"
+        >
+          {settings?.email || "contact@example.com"}
+          <span class="font-mono">→</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>
