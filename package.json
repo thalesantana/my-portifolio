@@ -17,6 +17,7 @@
     "@astrojs/react": "^5.0.1",
     "@directus/sdk": "^21.2.0",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.0.8",

@@ -19,7 +19,7 @@ export default defineConfig({
   // Cloudflare adapter só no build — no dev usa o runtime nativo do Astro
   ...(isBuild ? {
     adapter: cloudflare({
-      platformProxy: { enabled: false },
+      imageService: 'compile',
     })
   } : {}),
 });
