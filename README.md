@@ -1,15 +1,15 @@
 # Portfolio
 
-Personal portfolio site built with Astro, React, and Tailwind CSS. Content is managed via a self-hosted Directus CMS instance — no redeploy needed to update projects or experience.
+Personal portfolio site built with Astro, React, and Tailwind CSS. Content is managed via a self-hosted Directus CMS and baked into the site at build time.
 
 ## Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | Astro (SSR + static hybrid) |
+| Framework | Astro (static — all pages prerendered at build time) |
 | Styling | Tailwind CSS v4 |
 | CMS | Directus (self-hosted) |
-| Deploy | Cloudflare Pages + Workers |
+| Deploy | Cloudflare Pages (GitHub integration) |
 | Analytics | Umami |
 
 ## Pages
@@ -78,15 +78,26 @@ All dynamic content lives in Directus:
 - **`experiences`** — company, role, period, description
 - **`site_settings`** (singleton) — name, role, bio, email, location, social links
 
-Changes in Directus reflect immediately on the site (SSR) or on next build (prerendered pages).
+Content is fetched **at build time**. Changes in Directus require a new build (push to `master`) to appear in production. The `/projects/[slug]` route generates one static page per project via `getStaticPaths`.
 
 ## Deployment
 
-The site deploys to Cloudflare Pages via `@astrojs/cloudflare`. Static pages (`/`, `/about`) are prerendered at build time. Dynamic pages (`/projects`, `/projects/[slug]`) run as Cloudflare Workers.
+Deployment is handled by the native **Cloudflare Pages ↔ GitHub** integration — every push to `master` triggers a build + deploy automatically. There is no GitHub Actions workflow; the build runs in the Pages build environment.
 
-Set the following environment variables in Cloudflare Pages settings:
+Build config (already set via [`wrangler.jsonc`](./wrangler.jsonc)):
+
+- Build command: `pnpm build`
+- Build output directory: `dist`
+
+Set the following environment variables in **Cloudflare Pages → Settings → Environment variables** (Production and Preview):
 
 ```
-DIRECTUS_URL=https://your-directus.up.railway.app
+DIRECTUS_URL=https://your-directus.example.com
 DIRECTUS_TOKEN=your-static-token
+UMAMI_WEBSITE_ID=...   # optional
+UMAMI_SRC=...          # optional
 ```
+
+Production domains:
+- `my-portifolio-9y6.pages.dev` (default Pages domain)
+- `thalessantana.dev` (custom domain)
