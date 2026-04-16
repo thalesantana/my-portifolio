@@ -3,20 +3,17 @@ import Footer from "../../components/layout/Footer.astro";
 import Header from "../../components/layout/Header.astro";
 import TechChip from "../../components/ui/TechChip.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { assetUrl, getProject } from "../../lib/directus";
+import { assetUrl, getProjects, type Project } from "../../lib/directus";
 
-const { slug } = Astro.params;
-
-if (!slug) {
-  return Astro.redirect("/projects");
+export async function getStaticPaths() {
+  const projects = await getProjects().catch(() => [] as Project[]);
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
 }
 
-const project = await getProject(slug).catch(() => null);
-
-if (!project) {
-  return Astro.redirect("/projects");
-}
-
+const { project } = Astro.props as { project: Project };
 const thumbnail = assetUrl(project.cover_image);
 ---
 
