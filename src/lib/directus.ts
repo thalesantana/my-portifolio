@@ -59,9 +59,17 @@ interface Schema {
 // Client
 // ──────────────────────────────────────────────
 
+let envLogged = false;
+
 function getClient() {
   const url = import.meta.env.DIRECTUS_URL;
   const token = import.meta.env.DIRECTUS_TOKEN;
+
+  if (!envLogged) {
+    console.log('[directus] DIRECTUS_URL:', url ? `set (${url})` : 'UNSET');
+    console.log('[directus] DIRECTUS_TOKEN:', token ? `set (${String(token).length} chars)` : 'UNSET');
+    envLogged = true;
+  }
 
   if (!url) throw new Error('DIRECTUS_URL env var is not set');
 
@@ -72,60 +80,86 @@ function getClient() {
   return createDirectus<Schema>(url).with(rest());
 }
 
+async function runRequest<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  const started = Date.now();
+  try {
+    const result = await fn();
+    const count = Array.isArray(result) ? result.length : result ? 1 : 0;
+    console.log(`[directus] ${label} OK in ${Date.now() - started}ms (items=${count})`);
+    return result;
+  } catch (err: any) {
+    console.error(`[directus] ${label} FAILED in ${Date.now() - started}ms`);
+    console.error(`[directus] ${label} error:`, err?.message ?? err);
+    if (err?.errors) console.error(`[directus] ${label} errors:`, JSON.stringify(err.errors));
+    if (err?.response?.status) console.error(`[directus] ${label} status:`, err.response.status);
+    throw err;
+  }
+}
+
 // ──────────────────────────────────────────────
 // Query helpers
 // ──────────────────────────────────────────────
 
 export async function getProjects(): Promise<Project[]> {
   const client = getClient();
-  return client.request(
-    readItems('projects', {
-      filter: { status: { _eq: 'published' } },
-      sort: ['sort'],
-    })
-  ) as Promise<Project[]>;
+  return runRequest('getProjects', () =>
+    client.request(
+      readItems('projects', {
+        filter: { status: { _eq: 'published' } },
+        sort: ['sort'],
+      })
+    ) as Promise<Project[]>
+  );
 }
 
 export async function getFeaturedProjects(): Promise<Project[]> {
   const client = getClient();
-  return client.request(
-    readItems('projects', {
-      filter: {
-        status: { _eq: 'published' },
-        featured: { _eq: true },
-      },
-      sort: ['sort'],
-      limit: 3,
-    })
-  ) as Promise<Project[]>;
+  return runRequest('getFeaturedProjects', () =>
+    client.request(
+      readItems('projects', {
+        filter: {
+          status: { _eq: 'published' },
+          featured: { _eq: true },
+        },
+        sort: ['sort'],
+        limit: 3,
+      })
+    ) as Promise<Project[]>
+  );
 }
 
 export async function getProject(slug: string): Promise<Project | null> {
   const client = getClient();
-  const results = await client.request(
-    readItems('projects', {
-      filter: {
-        slug: { _eq: slug },
-        status: { _eq: 'published' },
-      },
-      limit: 1,
-    })
-  ) as Project[];
+  const results = await runRequest(`getProject(${slug})`, () =>
+    client.request(
+      readItems('projects', {
+        filter: {
+          slug: { _eq: slug },
+          status: { _eq: 'published' },
+        },
+        limit: 1,
+      })
+    ) as Promise<Project[]>
+  );
   return results[0] ?? null;
 }
 
 export async function getExperiences(): Promise<Experience[]> {
   const client = getClient();
-  return client.request(
-    readItems('experiences', {
-      sort: ['-start_date'],
-    })
-  ) as Promise<Experience[]>;
+  return runRequest('getExperiences', () =>
+    client.request(
+      readItems('experiences', {
+        sort: ['-start_date'],
+      })
+    ) as Promise<Experience[]>
+  );
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const client = getClient();
-  return client.request(readSingleton('site_settings')) as Promise<SiteSettings>;
+  return runRequest('getSiteSettings', () =>
+    client.request(readSingleton('site_settings')) as Promise<SiteSettings>
+  );
 }
 
 // ──────────────────────────────────────────────

@@ -10,8 +10,14 @@ import { getFeaturedProjects, getSiteSettings } from "../lib/directus";
 import { TECH_STACK_CATEGORIES } from "../lib/config";
 
 const [settings, featuredProjects] = await Promise.all([
-  getSiteSettings().catch(() => null),
-  getFeaturedProjects().catch(() => []),
+  getSiteSettings().catch((e) => {
+    console.error('[index.astro] getSiteSettings failed:', e?.message ?? e);
+    return null;
+  }),
+  getFeaturedProjects().catch((e) => {
+    console.error('[index.astro] getFeaturedProjects failed:', e?.message ?? e);
+    return [];
+  }),
 ]);
 
 ---

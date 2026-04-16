@@ -8,8 +8,14 @@ import { getExperiences, getSiteSettings } from '../lib/directus';
 import { formatPeriod, sortExperiences } from '../lib/utils';
 
 const [settings, experiences] = await Promise.all([
-  getSiteSettings().catch(() => null),
-  getExperiences().catch(() => []),
+  getSiteSettings().catch((e) => {
+    console.error('[about.astro] getSiteSettings failed:', e?.message ?? e);
+    return null;
+  }),
+  getExperiences().catch((e) => {
+    console.error('[about.astro] getExperiences failed:', e?.message ?? e);
+    return [];
+  }),
 ]);
 
 const sortedExperiences = sortExperiences(experiences);

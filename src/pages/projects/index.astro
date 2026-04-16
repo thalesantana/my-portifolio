@@ -9,8 +9,8 @@ let projects: Awaited<ReturnType<typeof getProjects>> = [];
 
 try {
   projects = await getProjects();
-} catch {
-  // Directus not available
+} catch (e: any) {
+  console.error('[projects/index.astro] getProjects failed:', e?.message ?? e);
 }
 ---
 

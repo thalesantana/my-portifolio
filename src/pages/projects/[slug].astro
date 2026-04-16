@@ -6,7 +6,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { assetUrl, getProjects, type Project } from "../../lib/directus";
 
 export async function getStaticPaths() {
-  const projects = await getProjects().catch(() => [] as Project[]);
+  const projects = await getProjects().catch((e: any) => {
+    console.error('[projects/[slug].astro] getProjects failed:', e?.message ?? e);
+    return [] as Project[];
+  });
+  console.log('[projects/[slug].astro] generating paths for', projects.length, 'projects');
   return projects.map((project) => ({
     params: { slug: project.slug },
     props: { project },
