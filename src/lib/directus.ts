@@ -20,10 +20,13 @@ export interface Project {
   tech_stack: string[];
   repo_url: string | null;
   live_url: string | null;
+  access_note: string | null;
   featured: boolean;
   sort: number | null;
   status: 'published' | 'draft';
   date_created: string;
+  start_date: string | null;
+  end_date: string | null;
 }
 
 export interface Experience {
