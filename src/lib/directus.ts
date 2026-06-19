@@ -83,20 +83,34 @@ function getClient() {
   return createDirectus<Schema>(url).with(rest());
 }
 
+// Build-time resiliência: o Directus de produção (Railway free) dorme e leva
+// vários segundos pra acordar (cold start), retornando 500 nas primeiras
+// chamadas. Sem retry, o build "engole" o erro e gera o site vazio. Aqui a
+// gente reexecuta a chamada até o CMS responder (ou desistir após o teto).
+const REQUEST_RETRIES = 8;
+const REQUEST_RETRY_DELAY_MS = 8000;
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function runRequest<T>(label: string, fn: () => Promise<T>): Promise<T> {
-  const started = Date.now();
-  try {
-    const result = await fn();
-    const count = Array.isArray(result) ? result.length : result ? 1 : 0;
-    console.log(`[directus] ${label} OK in ${Date.now() - started}ms (items=${count})`);
-    return result;
-  } catch (err: any) {
-    console.error(`[directus] ${label} FAILED in ${Date.now() - started}ms`);
-    console.error(`[directus] ${label} error:`, err?.message ?? err);
-    if (err?.errors) console.error(`[directus] ${label} errors:`, JSON.stringify(err.errors));
-    if (err?.response?.status) console.error(`[directus] ${label} status:`, err.response.status);
-    throw err;
+  let lastErr: any;
+  for (let attempt = 1; attempt <= REQUEST_RETRIES; attempt++) {
+    const started = Date.now();
+    try {
+      const result = await fn();
+      const count = Array.isArray(result) ? result.length : result ? 1 : 0;
+      console.log(`[directus] ${label} OK in ${Date.now() - started}ms (items=${count})`);
+      return result;
+    } catch (err: any) {
+      lastErr = err;
+      const status = err?.response?.status ?? err?.errors?.[0]?.extensions?.code ?? '';
+      console.error(
+        `[directus] ${label} attempt ${attempt}/${REQUEST_RETRIES} failed in ${Date.now() - started}ms: ${err?.message ?? err} ${status}`
+      );
+      if (attempt < REQUEST_RETRIES) await sleep(REQUEST_RETRY_DELAY_MS);
+    }
   }
+  console.error(`[directus] ${label} desistindo após ${REQUEST_RETRIES} tentativas`);
+  throw lastErr;
 }
 
 // ──────────────────────────────────────────────
