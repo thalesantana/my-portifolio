@@ -41,7 +41,7 @@ O projeto utiliza um sistema de cores customizado definido em `src/styles/global
 6.  **Env vars do `directus.ts`**: use `readEnv()` (lê `import.meta.env` **e** `process.env`). No build do Pages as vars vêm pelo `process.env` — `import.meta.env.DIRECTUS_URL` volta vazio lá.
 7.  **Retry de build**: `runRequest` reexecuta as queries (cold start do Railway). Não remover — sem isso o build pega o CMS dormindo e sai vazio.
 8.  **Markdown** (`long_description`, `access_note`): renderizado com `marked` + `set:html`. Não há plugin `typography` — estilize os elementos com arbitrary variants (`[&_h2]:...`, `[&_a]:...`).
-9.  **Assets/capas**: imagens vêm de `DIRECTUS_URL/assets/<id>` em runtime. O papel **Public** do Directus precisa de read em `directus_files`, senão dá **403**. (Arquivos pesados servidos de um Directus que dorme = capa lenta/instável.)
+9.  **Assets/capas**: são **"assadas" no build** pela integração `bake-cms-assets` (`astro.config.mjs`) → baixadas pra `dist/cms-assets/<id>` (sem extensão; content-type vai num `_headers` gerado) e servidas pela **CDN da Cloudflare**. `assetUrl()` retorna o caminho local. **Não dependem do Directus acordado em runtime.** Trocar a capa no admin reflete via auto-rebuild. (O token não expande `cover_image` relacional — por isso o bake usa o **id** do arquivo, não `filename_disk`.)
 
 ## 📄 Gerenciamento de Conteúdo
 
