@@ -195,8 +195,13 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 // Asset URL helper
 // ──────────────────────────────────────────────
 
+/**
+ * URL local da capa "assada" no build. O arquivo é baixado do Directus para
+ * `dist/cms-assets/<id>` pela integração `bake-cms-assets` (astro.config.mjs)
+ * e servido pela CDN da Cloudflare — sem depender do Directus estar acordado
+ * em runtime. O content-type vai num `dist/_headers` gerado pelo mesmo hook.
+ */
 export function assetUrl(fileId: string | null | undefined): string | null {
   if (!fileId) return null;
-  const base = readEnv('DIRECTUS_URL') ?? '';
-  return `${base}/assets/${fileId}`;
+  return `/cms-assets/${fileId}`;
 }

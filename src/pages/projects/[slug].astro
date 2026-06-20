@@ -35,7 +35,7 @@ const period = project.start_date
 <BaseLayout
   title={`${project.title} — Portfolio`}
   description={project.description}
-  ogImage={thumbnail ?? undefined}
+  ogImage={thumbnail ? new URL(thumbnail, Astro.site).href : undefined}
 >
   <Header />
 
