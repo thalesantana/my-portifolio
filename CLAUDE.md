@@ -41,7 +41,7 @@ O projeto utiliza um sistema de cores customizado definido em `src/styles/global
 6.  **Env vars do `directus.ts`**: use `readEnv()` (lê `import.meta.env` **e** `process.env`). No build do Pages as vars vêm pelo `process.env` — `import.meta.env.DIRECTUS_URL` volta vazio lá.
 7.  **Retry de build**: `runRequest` reexecuta as queries (cold start do Railway). Não remover — sem isso o build pega o CMS dormindo e sai vazio.
 8.  **Markdown** (`long_description`, `access_note`): renderizado com `marked` + `set:html`. Não há plugin `typography` — estilize os elementos com arbitrary variants (`[&_h2]:...`, `[&_a]:...`).
-9.  **Assets/capas**: são **"assadas" no build** pela integração `bake-cms-assets` (`astro.config.mjs`) → baixadas pra `dist/cms-assets/<id>` (sem extensão; content-type vai num `_headers` gerado) e servidas pela **CDN da Cloudflare**. `assetUrl()` retorna o caminho local. **Não dependem do Directus acordado em runtime.** Trocar a capa no admin reflete via auto-rebuild. (O token não expande `cover_image` relacional — por isso o bake usa o **id** do arquivo, não `filename_disk`.)
+9.  **Assets/capas**: são **"assadas" no build** pela integração `bake-cms-assets` (`astro.config.mjs`) → baixadas pra `dist/cms-assets/<id>` (sem extensão; content-type vai num `_headers` gerado) e servidas pela **CDN da Cloudflare**. `assetUrl()` retorna o caminho local. **Não dependem do Directus acordado em runtime.** Trocar a capa no admin reflete via auto-rebuild. O bake usa o **id** do arquivo (a query do build pega `cover_image` como id, sem expandir).
 
 ## 📄 Gerenciamento de Conteúdo
 
@@ -49,6 +49,8 @@ O conteúdo é dinâmico e vem das coleções:
 - `projects`: Portfólio de projetos.
 - `experiences`: Experiência profissional.
 - `site_settings`: Dados gerais (Bio, Redes Sociais, Contato).
+
+> 🖼️ **Campo `projects.cover_image`**: é uma **relação M2O com `directus_files`** (`special: ['file']` + relation). Se um dia o admin mostrar **"No Image Selected"** mesmo com capa setada, é sinal de que a relação se perdeu (ex.: re-import de schema) — sem ela, o admin não resolve o arquivo e **salvar apaga a capa**. Recriar: `PATCH /fields/projects/cover_image {"meta":{"special":["file"]}}` + `POST /relations {"collection":"projects","field":"cover_image","related_collection":"directus_files"}`.
 
 ## 🛠 Comandos Frequentes
 
