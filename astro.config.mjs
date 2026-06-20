@@ -69,7 +69,7 @@ function bakeCmsAssets() {
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
             const type = r.headers.get('content-type') || 'application/octet-stream';
             await writeFile(join(outDir, id), Buffer.from(await r.arrayBuffer()));
-            headerRules.push(`/cms-assets/${id}\n  Content-Type: ${type.split(';')[0]}\n  Cache-Control: public, max-age=31536000, immutable`);
+            headerRules.push(`/cms-assets/${id}\n  Content-Type: ${type.split(';')[0]}\n  Cache-Control: public, max-age=3600`);
             n++;
           } catch (e) {
             logger.warn(`[bake-cms-assets] download ${id} falhou: ${e}`);
