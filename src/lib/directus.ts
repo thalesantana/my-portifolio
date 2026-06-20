@@ -64,9 +64,21 @@ interface Schema {
 
 let envLogged = false;
 
+/**
+ * Lê uma variável de ambiente tanto do `import.meta.env` (arquivos `.env`,
+ * usado em dev/local) quanto do `process.env` (build do Cloudflare Pages, onde
+ * as variáveis Plaintext do projeto chegam por aí — NÃO pelo import.meta.env).
+ */
+function readEnv(key: string): string | undefined {
+  const fromVite = (import.meta.env as Record<string, string | undefined>)[key];
+  if (fromVite) return fromVite;
+  if (typeof process !== 'undefined' && process.env) return process.env[key];
+  return undefined;
+}
+
 function getClient() {
-  const url = import.meta.env.DIRECTUS_URL;
-  const token = import.meta.env.DIRECTUS_TOKEN;
+  const url = readEnv('DIRECTUS_URL');
+  const token = readEnv('DIRECTUS_TOKEN');
 
   if (!envLogged) {
     console.log('[directus] DIRECTUS_URL:', url ? `set (${url})` : 'UNSET');
@@ -185,6 +197,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
 export function assetUrl(fileId: string | null | undefined): string | null {
   if (!fileId) return null;
-  const base = import.meta.env.DIRECTUS_URL ?? '';
+  const base = readEnv('DIRECTUS_URL') ?? '';
   return `${base}/assets/${fileId}`;
 }
