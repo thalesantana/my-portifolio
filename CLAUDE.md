@@ -12,7 +12,7 @@ Este documento serve como guia de contexto para assistentes de IA (como Claude/A
 
 > ⚠️ **Conteúdo do Directus é resolvido em BUILD TIME**, não em runtime. Alterar dados no CMS exige um novo build para refletir em produção. Todas as chamadas `getProjects`, `getSiteSettings`, etc. rodam durante `astro build`.
 
-> 🔁 **Auto-rebuild on publish**: um **Flow no Directus** ("Rebuild site on publish") dispara um **Cloudflare Deploy Hook** em create/update/delete de `projects`/`experiences`/`site_settings` → o site rebuilda sozinho (~2-3 min). Logo, editar no admin **já reflete** em prod sem `git push` manual.
+> 🔁 **Auto-rebuild on publish**: um **Flow no Directus** ("Rebuild site on publish") dispara um **Cloudflare Deploy Hook** em create/update/delete de `projects`/`experiences`/`site_settings`/`directus_files` (esse último p/ uploads de imagem) → o site rebuilda sozinho (~2-3 min). Logo, editar no admin **já reflete** em prod sem `git push` manual.
 
 ## 🎨 Design System (Tailwind v4)
 
