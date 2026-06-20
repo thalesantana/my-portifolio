@@ -5,10 +5,20 @@ import {
   readItems,
   readSingleton,
 } from '@directus/sdk';
+import { DIRECTUS_LANG_CODE } from '../i18n/routing';
+import type { Locale } from '../i18n/ui';
 
 // ──────────────────────────────────────────────
 // Type definitions matching Directus collections
 // ──────────────────────────────────────────────
+
+export interface ProjectTranslation {
+  languages_code: string;
+  title: string | null;
+  description: string | null;
+  long_description: string | null;
+  access_note: string | null;
+}
 
 export interface Project {
   id: number;
@@ -27,6 +37,13 @@ export interface Project {
   date_created: string;
   start_date: string | null;
   end_date: string | null;
+  translations?: ProjectTranslation[];
+}
+
+export interface ExperienceTranslation {
+  languages_code: string;
+  role: string | null;
+  description: string | null;
 }
 
 export interface Experience {
@@ -38,6 +55,14 @@ export interface Experience {
   current: boolean;
   description: string;
   sort: number | null;
+  translations?: ExperienceTranslation[];
+}
+
+export interface SiteSettingsTranslation {
+  languages_code: string;
+  role: string | null;
+  bio: string | null;
+  location: string | null;
 }
 
 export interface SiteSettings {
@@ -50,6 +75,7 @@ export interface SiteSettings {
   linkedin: string;
   github: string;
   avatar: string | null;
+  translations?: SiteSettingsTranslation[];
 }
 
 interface Schema {
@@ -57,6 +83,44 @@ interface Schema {
   experiences: Experience[];
   site_settings: SiteSettings;
 }
+
+// ──────────────────────────────────────────────
+// i18n: aplica a tradução do idioma pedido sobre o objeto base.
+//
+// Buscamos TODAS as traduções (sem deep filter) e escolhemos em JS pra ter
+// fallback: idioma pedido → pt-BR → campo base. Assim páginas EN nunca ficam
+// vazias enquanto a tradução ainda não foi preenchida no admin.
+// ──────────────────────────────────────────────
+
+const PT_CODE = DIRECTUS_LANG_CODE['pt-BR'];
+
+/** Considera string vazia/espaços como "ausente" (cai no fallback). */
+function present<T>(v: T | null | undefined): v is T {
+  return v != null && String(v).trim() !== '';
+}
+
+function applyTranslation<
+  Item extends { translations?: Array<{ languages_code: string } & Record<string, unknown>> },
+>(item: Item, fields: string[], locale: Locale): Item {
+  const code = DIRECTUS_LANG_CODE[locale];
+  const translations = item.translations ?? [];
+  const wanted = translations.find((t) => t.languages_code === code);
+  const ptbr = translations.find((t) => t.languages_code === PT_CODE);
+
+  const merged: Record<string, unknown> = { ...item };
+  for (const field of fields) {
+    const value = wanted && present(wanted[field]) ? wanted[field]
+      : ptbr && present(ptbr[field]) ? ptbr[field]
+      : (item as Record<string, unknown>)[field];
+    if (present(value)) merged[field] = value;
+  }
+  delete merged.translations;
+  return merged as Item;
+}
+
+const PROJECT_T_FIELDS = ['title', 'description', 'long_description', 'access_note'];
+const EXPERIENCE_T_FIELDS = ['role', 'description'];
+const SITE_SETTINGS_T_FIELDS = ['role', 'bio', 'location'];
 
 // ──────────────────────────────────────────────
 // Client
@@ -129,21 +193,23 @@ async function runRequest<T>(label: string, fn: () => Promise<T>): Promise<T> {
 // Query helpers
 // ──────────────────────────────────────────────
 
-export async function getProjects(): Promise<Project[]> {
+export async function getProjects(locale: Locale = 'pt-BR'): Promise<Project[]> {
   const client = getClient();
-  return runRequest('getProjects', () =>
+  const items = await runRequest('getProjects', () =>
     client.request(
       readItems('projects', {
         filter: { status: { _eq: 'published' } },
         sort: ['sort'],
+        fields: ['*', { translations: ['*'] }],
       })
     ) as Promise<Project[]>
   );
+  return items.map((p) => applyTranslation(p, PROJECT_T_FIELDS, locale));
 }
 
-export async function getFeaturedProjects(): Promise<Project[]> {
+export async function getFeaturedProjects(locale: Locale = 'pt-BR'): Promise<Project[]> {
   const client = getClient();
-  return runRequest('getFeaturedProjects', () =>
+  const items = await runRequest('getFeaturedProjects', () =>
     client.request(
       readItems('projects', {
         filter: {
@@ -152,12 +218,14 @@ export async function getFeaturedProjects(): Promise<Project[]> {
         },
         sort: ['sort'],
         limit: 3,
+        fields: ['*', { translations: ['*'] }],
       })
     ) as Promise<Project[]>
   );
+  return items.map((p) => applyTranslation(p, PROJECT_T_FIELDS, locale));
 }
 
-export async function getProject(slug: string): Promise<Project | null> {
+export async function getProject(slug: string, locale: Locale = 'pt-BR'): Promise<Project | null> {
   const client = getClient();
   const results = await runRequest(`getProject(${slug})`, () =>
     client.request(
@@ -167,28 +235,37 @@ export async function getProject(slug: string): Promise<Project | null> {
           status: { _eq: 'published' },
         },
         limit: 1,
+        fields: ['*', { translations: ['*'] }],
       })
     ) as Promise<Project[]>
   );
-  return results[0] ?? null;
+  const project = results[0];
+  return project ? applyTranslation(project, PROJECT_T_FIELDS, locale) : null;
 }
 
-export async function getExperiences(): Promise<Experience[]> {
+export async function getExperiences(locale: Locale = 'pt-BR'): Promise<Experience[]> {
   const client = getClient();
-  return runRequest('getExperiences', () =>
+  const items = await runRequest('getExperiences', () =>
     client.request(
       readItems('experiences', {
         sort: ['-start_date'],
+        fields: ['*', { translations: ['*'] }],
       })
     ) as Promise<Experience[]>
   );
+  return items.map((e) => applyTranslation(e, EXPERIENCE_T_FIELDS, locale));
 }
 
-export async function getSiteSettings(): Promise<SiteSettings> {
+export async function getSiteSettings(locale: Locale = 'pt-BR'): Promise<SiteSettings> {
   const client = getClient();
-  return runRequest('getSiteSettings', () =>
-    client.request(readSingleton('site_settings')) as Promise<SiteSettings>
+  const settings = await runRequest('getSiteSettings', () =>
+    client.request(
+      readSingleton('site_settings', {
+        fields: ['*', { translations: ['*'] }],
+      })
+    ) as Promise<SiteSettings>
   );
+  return applyTranslation(settings, SITE_SETTINGS_T_FIELDS, locale);
 }
 
 // ──────────────────────────────────────────────

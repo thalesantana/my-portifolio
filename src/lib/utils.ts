@@ -1,16 +1,26 @@
 import type { Experience } from './directus';
+import { t, type Locale } from '../i18n/ui';
 
 // ── Date formatting ───────────────────────────────────────────────────────────
 
-const MONTHS = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MONTHS: Record<Locale, string[]> = {
+  'pt-BR': ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+};
 
-export function formatDate(dateStr: string): string {
+export function formatDate(dateStr: string, lang: Locale = 'pt-BR'): string {
   const d = new Date(dateStr);
-  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  return `${MONTHS[lang][d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
-export function formatPeriod(start: string, end: string | null, current: boolean): string {
-  return `${formatDate(start)} — ${(current || !end) ? 'Presente' : formatDate(end)}`;
+export function formatPeriod(
+  start: string,
+  end: string | null,
+  current: boolean,
+  lang: Locale = 'pt-BR'
+): string {
+  const endLabel = current || !end ? t(lang, 'date.present') : formatDate(end, lang);
+  return `${formatDate(start, lang)} — ${endLabel}`;
 }
 
 // ── Sorting ───────────────────────────────────────────────────────────────────

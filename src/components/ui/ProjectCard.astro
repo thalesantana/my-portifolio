@@ -1,21 +1,25 @@
 ---
 import type { Project } from "../../lib/directus";
 import { assetUrl } from "../../lib/directus";
+import { t, type Locale } from "../../i18n/ui";
+import { localizedPath } from "../../i18n/routing";
 import TechChip from "./TechChip.astro";
 
 interface Props {
   project: Project;
+  lang?: Locale;
 }
 
-const { project } = Astro.props;
+const { project, lang = "pt-BR" } = Astro.props;
 const thumbnail = assetUrl(project.cover_image);
 const year = project.start_date
   ? new Date(project.start_date).getUTCFullYear()
   : null;
+const href = localizedPath(`/projects/${project.slug}`, lang);
 ---
 
 <a
-  href={`/projects/${project.slug}`}
+  href={href}
   class="group block bg-surface-low hover:bg-surface-container transition-colors"
 >
   <!-- Thumbnail -->
@@ -31,7 +35,7 @@ const year = project.start_date
       ) : (
         <div class="w-full h-full flex items-center justify-center">
           <span class="text-xs font-mono text-outline-variant tracking-widest uppercase">
-            No preview
+            {t(lang, "projects.card.noPreview")}
           </span>
         </div>
       )

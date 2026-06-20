@@ -95,6 +95,11 @@ function bakeCmsAssets() {
 export default defineConfig({
   site: 'https://thalessantana.dev',
   output: 'static',
+  i18n: {
+    defaultLocale: 'pt-BR',
+    locales: ['pt-BR', 'en'],
+    routing: { prefixDefaultLocale: false },
+  },
   integrations: [react(), bakeCmsAssets()],
 
   vite: {

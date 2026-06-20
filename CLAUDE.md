@@ -12,7 +12,21 @@ Este documento serve como guia de contexto para assistentes de IA (como Claude/A
 
 > ⚠️ **Conteúdo do Directus é resolvido em BUILD TIME**, não em runtime. Alterar dados no CMS exige um novo build para refletir em produção. Todas as chamadas `getProjects`, `getSiteSettings`, etc. rodam durante `astro build`.
 
-> 🔁 **Auto-rebuild on publish**: um **Flow no Directus** ("Rebuild site on publish") dispara um **Cloudflare Deploy Hook** em create/update/delete de `projects`/`experiences`/`site_settings`/`directus_files` (esse último p/ uploads de imagem) → o site rebuilda sozinho (~2-3 min). Logo, editar no admin **já reflete** em prod sem `git push` manual.
+> 🔁 **Auto-rebuild on publish**: um **Flow no Directus** ("Rebuild site on publish") dispara um **Cloudflare Deploy Hook** em create/update/delete de `projects`/`experiences`/`site_settings`/`directus_files` (uploads de imagem) e das collections de tradução `projects_translations`/`experiences_translations`/`site_settings_translations`/`languages` → o site rebuilda sozinho (~2-3 min). Logo, editar (ou traduzir) no admin **já reflete** em prod sem `git push` manual.
+
+## 🌐 i18n (pt-BR / en)
+
+Site bilíngue. **PT na raiz** (`/`, `/projects`, `/about`, `/projects/<slug>`) e **EN sob `/en/`**. Config em `astro.config.mjs` (`i18n` com `defaultLocale: 'pt-BR'`, `prefixDefaultLocale: false`).
+
+- **Páginas compartilhadas**: o corpo de cada página vive em `src/components/pages/*` (`HomePage`/`AboutPage`/`ProjectsPage`/`ProjectDetail`) e recebe a prop `lang`. Os arquivos em `src/pages/` (e `src/pages/en/`) são só "casquinhas" que chamam o componente com o `lang` certo. **Ao mexer no conteúdo de uma página, edite o componente em `pages/`, não a casquinha.**
+- **Strings de UI**: dicionário em `src/i18n/ui.ts` (`t(lang, key)`). Termos técnicos (linguagens/frameworks, GitHub, LinkedIn) **não** são traduzidos. "Tech Stack" → "Tecnologias" no PT.
+- **Roteamento**: helpers em `src/i18n/routing.ts` (`localizedPath`, `alternatePath`, `localeFromPath`, mapa locale→código Directus). **Todo link interno deve passar por `localizedPath(path, lang)`** pra preservar o idioma.
+- **Datas**: `formatDate`/`formatPeriod` em `utils.ts` recebem `lang` (meses + "Presente"/"Present").
+- **Detecção**: script inline no `<head>` do `BaseLayout` — preferência manual salva em `localStorage.lang` **sempre manda**; só na 1ª visita (flag `i18n.detected`) redireciona pra `/en/` se o navegador não for PT. O `LangSwitcher` (bandeiras 🇧🇷 / 🇬🇧 Union Jack) grava a preferência ao clicar. `<html lang>` + `hreflang` por idioma.
+- **Conteúdo do CMS**: i18n nativo do Directus. Cada collection tem `translations` (O2M) ligada a `<base>_translations` (junction com `languages_code` → `languages`). **Campos traduzíveis**: projects (`title`, `description`, `long_description`, `access_note`), experiences (`role`, `description`), site_settings (`role`, `bio`, `location`). O resto (slug, tech_stack, datas, URLs, cover_image…) é compartilhado.
+  - As queries em `directus.ts` recebem `locale`, pedem `fields: ['*', { translations: ['*'] }]` e `applyTranslation()` achata a tradução sobre o objeto base com **fallback**: idioma pedido → pt-BR → campo base (EN nunca fica vazio enquanto não for traduzido).
+  - Códigos de idioma no Directus: `pt-BR` e `en-US` (≠ do locale de rota `en`). Ver `DIRECTUS_LANG_CODE`.
+  - Setup do schema é reaplicável (idempotente) via `node scripts/setup-i18n-directus.mjs`.
 
 ## 🎨 Design System (Tailwind v4)
 
@@ -28,8 +42,11 @@ O projeto utiliza um sistema de cores customizado definido em `src/styles/global
 - `src/lib/directus.ts`: Cliente e tipos do CMS.
 - `src/lib/utils.ts`: Funções utilitárias (formatação de data, ordenação).
 - `src/lib/config.ts`: Configurações estáticas (categorias da stack).
+- `src/i18n/`: `ui.ts` (dicionário + `t()`), `routing.ts` (helpers de rota por idioma).
+- `src/components/pages/`: corpo das páginas (recebem `lang`); as rotas em `src/pages/` são casquinhas.
 - `src/components/ui/`: Componentes reutilizáveis (TechChip, ProjectCard).
-- `src/components/layout/`: Header, Footer.
+- `src/components/layout/`: Header, Footer, LangSwitcher.
+- `scripts/setup-i18n-directus.mjs`: cria/reaplica o schema de traduções no Directus (idempotente).
 
 ## ⚙️ Convenções de Código
 

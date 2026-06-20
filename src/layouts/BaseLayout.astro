@@ -1,36 +1,95 @@
 ---
 import '../styles/global.css';
+import { HTML_LANG, OG_LOCALE, alternatePath } from '../i18n/routing';
+import type { Locale } from '../i18n/ui';
 
 interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  lang?: Locale;
 }
 
 const {
   title = 'Portfolio',
   description = 'Software engineer portfolio',
   ogImage,
+  lang = 'pt-BR',
 } = Astro.props;
 
 const canonicalURL = Astro.site ? new URL(Astro.url.pathname, Astro.site) : null;
 const umamiWebsiteId = import.meta.env.UMAMI_WEBSITE_ID;
 const umamiSrc = import.meta.env.UMAMI_SRC;
+
+// hreflang alternates (PT na raiz, EN em /en/)
+const ptHref = Astro.site
+  ? new URL(alternatePath(Astro.url.pathname, 'pt-BR'), Astro.site).href
+  : null;
+const enHref = Astro.site
+  ? new URL(alternatePath(Astro.url.pathname, 'en'), Astro.site).href
+  : null;
 ---
 
 <!doctype html>
-<html lang="pt-BR">
+<html lang={HTML_LANG[lang]}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     {canonicalURL && <link rel="canonical" href={canonicalURL} />}
 
+    <!-- hreflang -->
+    {ptHref && <link rel="alternate" hreflang="pt-BR" href={ptHref} />}
+    {enHref && <link rel="alternate" hreflang="en" href={enHref} />}
+    {ptHref && <link rel="alternate" hreflang="x-default" href={ptHref} />}
+
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content={OG_LOCALE[lang]} />
     {ogImage && <meta property="og:image" content={ogImage} />}
+
+    <!-- Detecção de idioma + preferência manual.
+         Roda antes do render pra evitar flash. Regras:
+         1. Preferência manual salva (localStorage.lang) sempre manda.
+         2. Senão, só na 1ª visita: navegador não-PT em rota PT → /en/. -->
+    <script is:inline>
+      (function () {
+        try {
+          var path = location.pathname;
+          var isEN = path === '/en' || path.indexOf('/en/') === 0;
+          var current = isEN ? 'en' : 'pt-BR';
+
+          function canonical() {
+            if (path === '/en') return '/';
+            if (path.indexOf('/en/') === 0) return path.slice(3);
+            return path;
+          }
+          function toLocale(p, lang) {
+            var c = canonical();
+            if (lang === 'pt-BR') return c;
+            return c === '/' ? '/en' : '/en' + c;
+          }
+
+          var pref = localStorage.getItem('lang');
+          if (pref === 'pt-BR' || pref === 'en') {
+            if (pref !== current) {
+              location.replace(toLocale(path, pref) + location.search + location.hash);
+            }
+            return;
+          }
+
+          if (!localStorage.getItem('i18n.detected')) {
+            localStorage.setItem('i18n.detected', '1');
+            var nav = (navigator.language || 'pt').toLowerCase();
+            if (nav.indexOf('pt') !== 0 && !isEN) {
+              location.replace(toLocale(path, 'en') + location.search + location.hash);
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
 
     <!-- Fonts: Space Grotesk + Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

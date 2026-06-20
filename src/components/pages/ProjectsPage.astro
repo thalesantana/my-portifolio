@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Header from '../layout/Header.astro';
+import Footer from '../layout/Footer.astro';
+import ProjectCard from '../ui/ProjectCard.astro';
+import { getProjects } from '../../lib/directus';
+import { t, type Locale } from '../../i18n/ui';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+
+let projects: Awaited<ReturnType<typeof getProjects>> = [];
+
+try {
+  projects = await getProjects(lang);
+} catch (e: any) {
+  console.error('[ProjectsPage] getProjects failed:', e?.message ?? e);
+}
+
+const countLabel = projects.length === 1 ? t(lang, 'projects.count.one') : t(lang, 'projects.count.other');
+---
+
+<BaseLayout
+  title="Projects — Portfolio"
+  description="A collection of engineering projects spanning distributed systems, cloud infrastructure, and developer tooling."
+  lang={lang}
+>
+  <Header lang={lang} />
+
+  <main class="pt-32 pb-32">
+    <div class="max-w-7xl mx-auto px-6">
+      <!-- Page header -->
+      <div class="mb-20">
+        <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4">{t(lang, 'projects.eyebrow')}</p>
+        <h1 class="font-display text-6xl font-bold text-on-surface mb-6">{t(lang, 'projects.title')}</h1>
+        <p class="text-on-surface-variant max-w-xl text-lg">
+          {t(lang, 'projects.intro')}
+        </p>
+      </div>
+
+      <!-- Project count -->
+      <div class="flex items-center gap-4 mb-12 pb-6 border-b border-outline-variant/20">
+        <span class="text-xs font-mono text-outline tracking-widest uppercase">
+          {projects.length} {countLabel}
+        </span>
+        <div class="flex-1 h-px bg-outline-variant/20"></div>
+      </div>
+
+      {projects.length > 0 ? (
+        <!-- Projects grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-outline-variant/20">
+          {projects.map((project) => (
+            <ProjectCard project={project} lang={lang} />
+          ))}
+        </div>
+      ) : (
+        <!-- Empty state -->
+        <div class="text-center py-32">
+          <p class="text-xs font-mono text-outline tracking-widest uppercase mb-4">{t(lang, 'projects.empty.title')}</p>
+          <p class="text-on-surface-variant">{t(lang, 'projects.empty.body')}</p>
+        </div>
+      )}
+    </div>
+  </main>
+
+  <Footer lang={lang} />
+</BaseLayout>

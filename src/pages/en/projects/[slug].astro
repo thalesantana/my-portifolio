@@ -1,0 +1,19 @@
+---
+import ProjectDetail from '../../../components/pages/ProjectDetail.astro';
+import { getProjects, type Project } from '../../../lib/directus';
+
+export async function getStaticPaths() {
+  const projects = await getProjects('en').catch((e: any) => {
+    console.error('[en/projects/[slug].astro] getProjects failed:', e?.message ?? e);
+    return [] as Project[];
+  });
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props as { project: Project };
+---
+
+<ProjectDetail project={project} lang="en" />

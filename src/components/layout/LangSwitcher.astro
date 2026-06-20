@@ -1,0 +1,78 @@
+---
+// Seletor de idioma (bandeiras) no canto superior direito.
+// Clicar salva a preferência (localStorage) e navega pra URL equivalente.
+import { alternatePath, type Locale } from '../../i18n/routing';
+import type { Locale as L } from '../../i18n/ui';
+
+interface Props {
+  lang: L;
+}
+
+const { lang } = Astro.props;
+const pathname = Astro.url.pathname;
+
+const ptHref = alternatePath(pathname, 'pt-BR');
+const enHref = alternatePath(pathname, 'en');
+
+const flags: { code: Locale; href: string; label: string }[] = [
+  { code: 'pt-BR', href: ptHref, label: 'Português' },
+  { code: 'en', href: enHref, label: 'English' },
+];
+---
+
+<div class="flex items-center gap-1.5" data-lang-switcher>
+  {
+    flags.map(({ code, href, label }) => (
+      <a
+        href={href}
+        data-set-lang={code}
+        aria-label={label}
+        title={label}
+        class:list={[
+          'inline-flex h-6 w-8 items-center justify-center overflow-hidden rounded-sm border transition-all',
+          lang === code
+            ? 'border-primary/60 opacity-100'
+            : 'border-outline-variant/30 opacity-50 hover:opacity-100',
+        ]}
+      >
+        {code === 'pt-BR' ? (
+          // 🇧🇷 Brasil
+          <svg viewBox="0 0 28 20" class="h-full w-full" aria-hidden="true">
+            <rect width="28" height="20" fill="#009b3a" />
+            <path d="M14 2 26 10 14 18 2 10z" fill="#fedf00" />
+            <circle cx="14" cy="10" r="4.2" fill="#002776" />
+          </svg>
+        ) : (
+          // 🇬🇧 Reino Unido (Union Jack)
+          <svg viewBox="0 0 60 30" class="h-full w-full" aria-hidden="true">
+            <clipPath id="uk-clip">
+              <rect width="60" height="30" />
+            </clipPath>
+            <g clip-path="url(#uk-clip)">
+              <rect width="60" height="30" fill="#012169" />
+              <path d="M0 0 60 30M60 0 0 30" stroke="#fff" stroke-width="6" />
+              <path
+                d="M0 0 60 30M60 0 0 30"
+                stroke="#C8102E"
+                stroke-width="4"
+                clip-path="url(#uk-clip)"
+              />
+              <path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10" />
+              <path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6" />
+            </g>
+          </svg>
+        )}
+      </a>
+    ))
+  }
+</div>
+
+<script>
+  // Persiste a escolha manual; a partir daí o auto-redirect respeita ela.
+  document.querySelectorAll('[data-set-lang]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const lang = el.getAttribute('data-set-lang');
+      if (lang) localStorage.setItem('lang', lang);
+    });
+  });
+</script>

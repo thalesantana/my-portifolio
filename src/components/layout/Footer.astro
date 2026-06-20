@@ -1,4 +1,11 @@
 ---
+import { t, type Locale } from "../../i18n/ui";
+
+interface Props {
+  lang?: Locale;
+}
+
+const { lang = "pt-BR" } = Astro.props;
 const year = new Date().getFullYear();
 const github = "https://github.com/thales-santana";
 const linkedin = "https://linkedin.com/in/thales-santana";
@@ -9,7 +16,7 @@ const linkedin = "https://linkedin.com/in/thales-santana";
     class="max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row items-center justify-between gap-6"
   >
     <p class="text-xs text-outline tracking-wider font-mono">
-      &copy; {year} — Built with Astro + Directus
+      &copy; {year} — {t(lang, "footer.builtWith")}
     </p>
     <div class="flex items-center gap-6">
       <a

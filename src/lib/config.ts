@@ -1,20 +1,25 @@
-// ── Tech stack categories (home page) ────────────────────────────────────────
+import type { UIKey } from '../i18n/ui';
 
-export const TECH_STACK_CATEGORIES = [
+// ── Tech stack categories (home page) ────────────────────────────────────────
+//
+// `labelKey` aponta pra uma chave de UI traduzível; `stack` são termos técnicos
+// (não traduzidos), iguais nos dois idiomas.
+
+export const TECH_STACK_CATEGORIES: { labelKey: UIKey; stack: string[] }[] = [
   {
-    category: 'Languages',
+    labelKey: 'stack.languages',
     stack: ['TypeScript', 'JavaScript', 'C#', 'Solidity'],
   },
   {
-    category: 'Backend',
+    labelKey: 'stack.backend',
     stack: ['Node.js', 'NestJS', '.NET', 'Fastify'],
   },
   {
-    category: 'Frontend',
+    labelKey: 'stack.frontend',
     stack: ['React', 'Next.js', 'Astro', 'Tailwind CSS'],
   },
   {
-    category: 'Databases & Infra',
+    labelKey: 'stack.databases',
     stack: ['PostgreSQL', 'MongoDB', 'Docker', 'AWS'],
   },
-] as const;
+];
