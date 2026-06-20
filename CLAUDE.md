@@ -6,11 +6,13 @@ Este documento serve como guia de contexto para assistentes de IA (como Claude/A
 
 - **Framework**: Astro (output `static` — site 100% pré-renderizado).
 - **Styling**: Tailwind CSS v4 (@theme no CSS).
-- **CMS**: Directus (self-hosted via Docker em dev; instância remota em prod).
+- **CMS**: Directus — Docker local em dev; **Railway (plano free) em prod**: `https://directus-production-f831.up.railway.app` (admin em `/admin`). ⚠️ O free **dorme** e retorna **500 nas primeiras chamadas** (cold start) — por isso `src/lib/directus.ts` tem retry.
 - **Deploy**: Cloudflare Pages (integração nativa Pages ↔ GitHub — push em `master` dispara build + deploy automático).
 - **Gerenciador de Pacotes**: `pnpm`.
 
-> ⚠️ **Conteúdo do Directus é resolvido em BUILD TIME**, não em runtime. Alterar dados no CMS exige novo build/push para refletir em produção. Todas as chamadas `getProjects`, `getSiteSettings`, etc. rodam durante `astro build`.
+> ⚠️ **Conteúdo do Directus é resolvido em BUILD TIME**, não em runtime. Alterar dados no CMS exige um novo build para refletir em produção. Todas as chamadas `getProjects`, `getSiteSettings`, etc. rodam durante `astro build`.
+
+> 🔁 **Auto-rebuild on publish**: um **Flow no Directus** ("Rebuild site on publish") dispara um **Cloudflare Deploy Hook** em create/update/delete de `projects`/`experiences`/`site_settings` → o site rebuilda sozinho (~2-3 min). Logo, editar no admin **já reflete** em prod sem `git push` manual.
 
 ## 🎨 Design System (Tailwind v4)
 
@@ -36,6 +38,10 @@ O projeto utiliza um sistema de cores customizado definido em `src/styles/global
 3.  **Classes Tailwind**: Priorize legibilidade e o uso de tokens. Ex: `text-primary` em vez de `text-[#45dfa4]`.
 4.  **Rotas dinâmicas**: Páginas como `/projects/[slug]` **exigem `getStaticPaths`** — retorne a lista completa de slugs a partir do Directus para que cada rota seja pré-renderizada em HTML no build.
 5.  **Sem diretiva `prerender`**: Como `output: 'static'` é o padrão, **não** use `export const prerender = true;` nas páginas — é redundante.
+6.  **Env vars do `directus.ts`**: use `readEnv()` (lê `import.meta.env` **e** `process.env`). No build do Pages as vars vêm pelo `process.env` — `import.meta.env.DIRECTUS_URL` volta vazio lá.
+7.  **Retry de build**: `runRequest` reexecuta as queries (cold start do Railway). Não remover — sem isso o build pega o CMS dormindo e sai vazio.
+8.  **Markdown** (`long_description`, `access_note`): renderizado com `marked` + `set:html`. Não há plugin `typography` — estilize os elementos com arbitrary variants (`[&_h2]:...`, `[&_a]:...`).
+9.  **Assets/capas**: imagens vêm de `DIRECTUS_URL/assets/<id>` em runtime. O papel **Public** do Directus precisa de read em `directus_files`, senão dá **403**. (Arquivos pesados servidos de um Directus que dorme = capa lenta/instável.)
 
 ## 📄 Gerenciamento de Conteúdo
 
@@ -53,8 +59,10 @@ O conteúdo é dinâmico e vem das coleções:
 
 ## ☁️ Deploy (Cloudflare Pages)
 
-- Projeto: `my-portifolio` (dashboard Cloudflare → Workers & Pages).
+- Projeto: `my-portifolio` (dashboard Cloudflare → Workers & Pages). Account ID: `29f2af93a8e9e9c8e7bf15fce7e131ff`.
 - Domínios: `my-portifolio-9y6.pages.dev` (padrão) e `thalessantana.dev` (custom).
-- Build settings configurados via [wrangler.jsonc](wrangler.jsonc) (`pages_build_output_dir: "./dist"`).
-- Variáveis de ambiente obrigatórias no dashboard do Pages (Settings → Environment variables): `DIRECTUS_URL`, `DIRECTUS_TOKEN`. Opcionais: `UMAMI_WEBSITE_ID`, `UMAMI_SRC`.
-- Não há workflow GitHub Actions — o deploy é feito pela integração nativa Pages ↔ GitHub.
+- Build command (`npm run build`) e output dir (`dist`) ficam no **dashboard** (Settings → Builds).
+- 🚨 **NUNCA criar `wrangler.jsonc`/`wrangler.toml` no repo.** Se existir, o Pages lê as env vars **do arquivo** e **ignora as do dashboard** → `DIRECTUS_URL: UNSET` → build sai **vazio** ("No projects"). Foi a causa-raiz de builds via git saírem sem conteúdo (removido no commit `6a7e407`).
+- Variáveis obrigatórias no dashboard (Settings → Variables and secrets, ambiente **Production**): `DIRECTUS_URL`, `DIRECTUS_TOKEN`. Opcionais: `UMAMI_WEBSITE_ID`, `UMAMI_SRC`.
+- Não há GitHub Actions — deploy pela integração nativa Pages ↔ GitHub.
+- **Deploy manual de emergência** (usa o `.env` local; útil se o build via git falhar): `pnpm build && CLOUDFLARE_ACCOUNT_ID=29f2af93a8e9e9c8e7bf15fce7e131ff pnpm exec wrangler pages deploy dist --project-name my-portifolio --branch master`.
