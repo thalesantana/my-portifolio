@@ -44,7 +44,7 @@ export const ui = {
 
     // Home / About — contact
     'contact.eyebrow': 'Entre em contato',
-    'home.contact.title': 'Vamos construir algo.',
+    'home.contact.title': 'Vamos construir algo juntos!?',
     'home.contact.body':
       'Aberto a novas oportunidades, colaborações e desafios de engenharia interessantes.',
 
