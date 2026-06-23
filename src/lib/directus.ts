@@ -199,7 +199,7 @@ export async function getProjects(locale: Locale = 'pt-BR'): Promise<Project[]> 
     client.request(
       readItems('projects', {
         filter: { status: { _eq: 'published' } },
-        sort: ['-start_date', '-date_created'],
+        sort: ['-start_date', '-id'],
         fields: ['*', { translations: ['*'] }],
       })
     ) as Promise<Project[]>
@@ -216,7 +216,7 @@ export async function getFeaturedProjects(locale: Locale = 'pt-BR'): Promise<Pro
           status: { _eq: 'published' },
           featured: { _eq: true },
         },
-        sort: ['-start_date', '-date_created'],
+        sort: ['-start_date', '-id'],
         limit: 3,
         fields: ['*', { translations: ['*'] }],
       })

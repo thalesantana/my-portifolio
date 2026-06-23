@@ -2,7 +2,7 @@
 import Footer from '../layout/Footer.astro';
 import Header from '../layout/Header.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getExperiences, getSiteSettings } from '../../lib/directus';
+import { getExperiences, getSiteSettings, assetUrl } from '../../lib/directus';
 import { formatPeriod, sortExperiences } from '../../lib/utils';
 import { t, type Locale } from '../../i18n/ui';
 
@@ -25,6 +25,7 @@ const [settings, experiences] = await Promise.all([
 
 const sortedExperiences = sortExperiences(experiences);
 const years = new Date().getFullYear() - 2021;
+const avatarUrl = assetUrl(settings?.avatar);
 
 const stats = [
   { label: t(lang, 'about.stats.focus'), value: t(lang, 'about.stats.focusValue') },
@@ -74,14 +75,36 @@ const stats = [
           )}
         </div>
 
-        <!-- Right: stats/info block -->
-        <div class="grid grid-cols-2 gap-px bg-outline-variant/20">
-          {stats.map(({ label, value }) => (
-            <div class="bg-surface-low p-8">
-              <p class="text-xs font-mono text-outline tracking-widest uppercase mb-2">{label}</p>
-              <p class="font-display text-lg font-semibold text-on-surface">{value}</p>
-            </div>
-          ))}
+        <!-- Right: profile photo + stats/info block -->
+        <div class="flex flex-col items-center gap-12">
+          <!-- Foto de perfil (redonda, centralizada). Fallback: avatar padrão. -->
+          <div class="w-40 h-40 rounded-full overflow-hidden ring-1 ring-outline-variant/40 bg-surface-low shrink-0">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={settings?.name ?? 'Profile photo'}
+                width="160"
+                height="160"
+                class="w-full h-full object-cover"
+              />
+            ) : (
+              <svg viewBox="0 0 160 160" class="w-full h-full text-outline" aria-hidden="true">
+                <rect width="160" height="160" class="fill-surface-container" />
+                <circle cx="80" cy="62" r="28" fill="currentColor" />
+                <path d="M28 148c0-28.7 23.3-52 52-52s52 23.3 52 52" fill="currentColor" />
+              </svg>
+            )}
+          </div>
+
+          <!-- Stats / info -->
+          <div class="grid grid-cols-2 gap-px bg-outline-variant/20 w-full">
+            {stats.map(({ label, value }) => (
+              <div class="bg-surface-low p-8">
+                <p class="text-xs font-mono text-outline tracking-widest uppercase mb-2">{label}</p>
+                <p class="font-display text-lg font-semibold text-on-surface">{value}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

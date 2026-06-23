@@ -56,14 +56,24 @@ function bakeCmsAssets() {
           }
         }
 
+        // Avatar do site_settings (foto de perfil) — também "assado" no build.
+        let avatarId = null;
+        try {
+          const r = await fetch(`${URL_}/items/site_settings?fields=avatar`, { headers });
+          if (r.ok) avatarId = (await r.json())?.data?.avatar ?? null;
+        } catch (e) {
+          logger.warn(`[bake-cms-assets] ler avatar falhou: ${e}`);
+        }
+
         const outDir = fileURLToPath(new URL('cms-assets/', dir));
         await mkdir(outDir, { recursive: true });
 
+        // Ids de arquivo a baixar: capas dos projetos + avatar (sem duplicar).
+        const fileIds = [...new Set([...projects.map((p) => p.cover_image), avatarId].filter(Boolean))];
+
         let n = 0;
         const headerRules = [];
-        for (const p of projects) {
-          const id = p.cover_image;
-          if (!id) continue;
+        for (const id of fileIds) {
           try {
             const r = await fetch(`${URL_}/assets/${id}`, { headers });
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -85,7 +95,7 @@ function bakeCmsAssets() {
           const block = headerRules.join('\n\n');
           await writeFile(headersPath, existing ? `${existing.trimEnd()}\n\n${block}\n` : `${block}\n`);
         }
-        logger.info(`[bake-cms-assets] ${n} capa(s) assada(s) em /cms-assets/`);
+        logger.info(`[bake-cms-assets] ${n} asset(s) assado(s) em /cms-assets/ (capas + avatar)`);
       },
     },
   };
