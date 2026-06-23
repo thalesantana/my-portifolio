@@ -48,8 +48,8 @@ const stats = [
   <main class="pt-32 pb-32">
     <!-- ── INTRO ──────────────────────────────────── -->
     <section class="max-w-7xl mx-auto px-6 mb-32">
-      <!-- Topo: (eyebrow + foto + título + bio) à esquerda; stats à direita alinhado pela base da bio -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-end">
+      <!-- Topo: (eyebrow + foto + título + bio) à esquerda; stats à direita alinhado ao topo -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
         <!-- Left: eyebrow + foto + título + bio -->
         <div>
           <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4">{t(lang, 'about.eyebrow')}</p>
@@ -85,7 +85,7 @@ const stats = [
         </div>
 
         <!-- Right: stats/info block -->
-        <div class="grid grid-cols-2 gap-px bg-outline-variant/20">
+        <div class="grid grid-cols-2 gap-px bg-outline-variant/20 mt-12">
           {stats.map(({ label, value }) => (
             <div class="bg-surface-low p-8">
               <p class="text-xs font-mono text-outline tracking-widest uppercase mb-2">{label}</p>
