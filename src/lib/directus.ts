@@ -75,7 +75,32 @@ export interface SiteSettings {
   linkedin: string;
   github: string;
   avatar: string | null;
+  /** Ponto focal do avatar como object-position (%). null = centralizado. */
+  avatarFocal: { x: number; y: number } | null;
   translations?: SiteSettingsTranslation[];
+}
+
+/** Subset do directus_files expandido no avatar pra calcular o ponto focal. */
+interface AvatarFile {
+  id: string;
+  width: number | null;
+  height: number | null;
+  focal_point_x: number | null;
+  focal_point_y: number | null;
+}
+
+/**
+ * Converte o ponto focal do Directus (coords em pixels a partir do topo-esquerda)
+ * em object-position (%). Retorna null quando não há ponto focal → centraliza.
+ */
+function focalToObjectPosition(file: AvatarFile): { x: number; y: number } | null {
+  const { width, height, focal_point_x, focal_point_y } = file;
+  if (focal_point_x == null || focal_point_y == null || !width || !height) return null;
+  const clamp = (n: number) => Math.min(100, Math.max(0, n));
+  return {
+    x: Math.round(clamp((focal_point_x / width) * 100) * 100) / 100,
+    y: Math.round(clamp((focal_point_y / height) * 100) * 100) / 100,
+  };
 }
 
 interface Schema {
@@ -258,14 +283,30 @@ export async function getExperiences(locale: Locale = 'pt-BR'): Promise<Experien
 
 export async function getSiteSettings(locale: Locale = 'pt-BR'): Promise<SiteSettings> {
   const client = getClient();
-  const settings = await runRequest('getSiteSettings', () =>
+  const raw = await runRequest('getSiteSettings', () =>
     client.request(
       readSingleton('site_settings', {
-        fields: ['*', { translations: ['*'] }],
+        fields: [
+          '*',
+          { avatar: ['id', 'width', 'height', 'focal_point_x', 'focal_point_y'] },
+          { translations: ['*'] },
+        ],
       })
-    ) as Promise<SiteSettings>
+    ) as Promise<Omit<SiteSettings, 'avatar' | 'avatarFocal'> & { avatar: AvatarFile | string | null }>
   );
-  return applyTranslation(settings, SITE_SETTINGS_T_FIELDS, locale);
+  const settings = applyTranslation(raw, SITE_SETTINGS_T_FIELDS, locale);
+
+  // Achata o avatar (M2O → directus_files) em id + ponto focal pra object-position.
+  const file = settings.avatar;
+  const out = settings as unknown as SiteSettings;
+  if (file && typeof file === 'object') {
+    out.avatarFocal = focalToObjectPosition(file);
+    out.avatar = file.id;
+  } else {
+    out.avatarFocal = null;
+    out.avatar = (file as string | null) ?? null;
+  }
+  return out;
 }
 
 // ──────────────────────────────────────────────
