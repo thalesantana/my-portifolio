@@ -151,7 +151,7 @@ const stats = [
                     <!-- Content -->
                     <div class="lg:col-span-3">
                       <h3 class="font-display text-xl font-semibold text-on-surface mb-1">{exp.role}</h3>
-                      <p class="text-sm text-primary font-mono mb-4">{exp.company}</p>
+                      <p class="text-sm text-primary font-mono mb-4">{exp.company || t(lang, 'about.career.freelancer')}</p>
                       {exp.description && (
                         <p class="text-on-surface-variant leading-relaxed mb-4">{exp.description}</p>
                       )}

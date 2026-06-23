@@ -70,6 +70,7 @@ export const ui = {
     'about.stats.statusValue': 'Disponível',
     'about.career.eyebrow': 'Carreira',
     'about.career.title': 'Experiência',
+    'about.career.freelancer': 'Freelancer',
     'about.career.empty': 'A experiência aparecerá aqui assim que for adicionada no Directus.',
     'about.contact.title': 'Entre em contato.',
     'about.contact.body':
@@ -160,6 +161,7 @@ export const ui = {
     'about.stats.statusValue': 'Open to work',
     'about.career.eyebrow': 'Career',
     'about.career.title': 'Experience',
+    'about.career.freelancer': 'Freelancer',
     'about.career.empty': 'Experience will appear here once added via Directus.',
     'about.contact.title': 'Get in touch.',
     'about.contact.body':
