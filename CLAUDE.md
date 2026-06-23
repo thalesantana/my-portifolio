@@ -65,8 +65,8 @@ O projeto utiliza um sistema de cores customizado definido em `src/styles/global
 
 O conteúdo é dinâmico e vem das coleções:
 - `projects`: Portfólio de projetos.
-- `experiences`: Experiência profissional.
-- `site_settings`: Dados gerais (Bio, Redes Sociais, Contato).
+- `experiences`: Experiência profissional. Se a **empresa ficar vazia**, a timeline do About mostra **"Freelancer"** automaticamente (`exp.company || t(lang, 'about.career.freelancer')`) — vale pros dois idiomas.
+- `site_settings`: Dados gerais (Bio, Redes Sociais, Contato, Avatar). A foto do About vem de `site_settings.avatar` (via `assetUrl`, com fallback pra um SVG genérico). `avatarFocal` (se existir) vira `object-position` pra ajustar o enquadramento.
 
 > 🖼️ **Campo `projects.cover_image`**: é uma **relação M2O com `directus_files`** (`special: ['file']` + relation). Se um dia o admin mostrar **"No Image Selected"** mesmo com capa setada, é sinal de que a relação se perdeu (ex.: re-import de schema) — sem ela, o admin não resolve o arquivo e **salvar apaga a capa**. Recriar: `PATCH /fields/projects/cover_image {"meta":{"special":["file"]}}` + `POST /relations {"collection":"projects","field":"cover_image","related_collection":"directus_files"}`.
 
