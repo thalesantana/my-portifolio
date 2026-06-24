@@ -9,13 +9,19 @@ interface Props {
 
 const { lang = "pt-BR" } = Astro.props;
 
-const navLinks = [
-  { label: t(lang, "nav.projects"), path: "/projects" },
-  { label: t(lang, "nav.about"), path: "/about" },
-];
+const homeBase = localizedPath("/", lang);
 
-const homeHref = localizedPath("/", lang);
-const currentPath = Astro.url.pathname;
+// Na home page os links são âncoras na mesma página.
+// Nas páginas de detalhe, apontam para a home + âncora.
+const isDetailPage = Astro.url.pathname.includes("/projects/");
+
+const anchor = (id: string) => isDetailPage ? `${homeBase}#${id}` : `#${id}`;
+
+const navLinks = [
+  { label: t(lang, "nav.about"),    href: anchor("sobre") },
+  { label: t(lang, "nav.projects"), href: anchor("projetos") },
+  { label: t(lang, "nav.contact"),  href: anchor("contato") },
+];
 ---
 
 <header
@@ -24,7 +30,7 @@ const currentPath = Astro.url.pathname;
   <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
     <!-- Logo / wordmark -->
     <a
-      href={homeHref}
+      href={homeBase}
       class="font-display text-sm font-semibold tracking-widest text-primary uppercase"
     >
       &lt;portfolio /&gt;
@@ -32,24 +38,14 @@ const currentPath = Astro.url.pathname;
 
     <!-- Nav -->
     <nav class="flex items-center gap-8">
-      {
-        navLinks.map(({ label, path }) => {
-          const href = localizedPath(path, lang);
-          return (
-            <a
-              href={href}
-              class={[
-                "text-xs font-medium tracking-wider uppercase transition-colors",
-                currentPath === href || currentPath.startsWith(href + "/")
-                  ? "text-primary"
-                  : "text-on-surface-variant hover:text-on-surface",
-              ].join(" ")}
-            >
-              {label}
-            </a>
-          );
-        })
-      }
+      {navLinks.map(({ label, href }) => (
+        <a
+          href={href}
+          class="text-xs font-medium tracking-wider uppercase transition-colors text-on-surface-variant hover:text-on-surface"
+        >
+          {label}
+        </a>
+      ))}
       <LangSwitcher lang={lang} />
     </nav>
   </div>
