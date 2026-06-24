@@ -261,8 +261,36 @@ const projectsHref = localizedPath("/projects", lang);
               const slides = carousel.querySelectorAll<HTMLElement>('.carousel-slide');
               const dots = document.querySelectorAll<HTMLElement>('.carousel-dot');
               let current = 0;
+              let autoTimer: ReturnType<typeof setTimeout> | null = null;
 
-              function goTo(index: number) {
+              // Analisa os frames de um GIF e retorna a duração total em ms.
+              // Reutiliza o cache do browser — o arquivo já está sendo baixado para o <img>.
+              async function getGifDurationMs(url: string): Promise<number | null> {
+                try {
+                  const resp = await fetch(url);
+                  const ct = resp.headers.get('content-type') ?? '';
+                  if (!ct.includes('gif')) return null;
+                  const buf = new Uint8Array(await resp.arrayBuffer());
+                  let total = 0;
+                  for (let i = 0; i < buf.length - 5; i++) {
+                    // Graphic Control Extension: 0x21 0xF9 0x04
+                    if (buf[i] === 0x21 && buf[i + 1] === 0xF9 && buf[i + 2] === 0x04) {
+                      total += buf[i + 4] + buf[i + 5] * 256; // centésimos de segundo
+                      i += 7;
+                    }
+                  }
+                  return total > 0 ? total * 10 : null; // → ms
+                } catch {
+                  return null;
+                }
+              }
+
+              function clearAuto() {
+                if (autoTimer !== null) { clearTimeout(autoTimer); autoTimer = null; }
+              }
+
+              function goTo(index: number, manual = false) {
+                clearAuto();
                 slides[current].style.opacity = '0';
                 slides[current].style.zIndex = '0';
                 dots[current]?.setAttribute('style', 'background:var(--color-outline-variant)');
@@ -272,11 +300,26 @@ const projectsHref = localizedPath("/projects", lang);
                 slides[current].style.opacity = '1';
                 slides[current].style.zIndex = '1';
                 dots[current]?.setAttribute('style', 'background:var(--color-primary);width:1.25rem');
+
+                // Não agenda auto-avanço se o usuário navegou manualmente
+                if (!manual && count > 1) scheduleAuto();
               }
 
-              document.getElementById('carousel-prev')?.addEventListener('click', () => goTo(current - 1));
-              document.getElementById('carousel-next')?.addEventListener('click', () => goTo(current + 1));
-              dots.forEach((dot) => dot.addEventListener('click', () => goTo(Number(dot.dataset.index))));
+              async function scheduleAuto() {
+                const src = (slides[current] as HTMLImageElement).src;
+                const gifMs = await getGifDurationMs(src);
+                // Se for GIF usa a duração real; se não for, não avança automaticamente
+                if (gifMs && gifMs > 0) {
+                  autoTimer = setTimeout(() => goTo(current + 1), gifMs);
+                }
+              }
+
+              document.getElementById('carousel-prev')?.addEventListener('click', () => goTo(current - 1, true));
+              document.getElementById('carousel-next')?.addEventListener('click', () => goTo(current + 1, true));
+              dots.forEach((dot) => dot.addEventListener('click', () => goTo(Number(dot.dataset.index), true)));
+
+              // Inicia o auto-avanço para o primeiro slide
+              if (count > 1) scheduleAuto();
             }
           </script>
         </div>
