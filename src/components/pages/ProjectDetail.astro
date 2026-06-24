@@ -17,6 +17,16 @@ interface Props {
 const { project, lang } = Astro.props;
 const thumbnail = assetUrl(project.cover_image);
 
+// Monta lista de imagens do carousel: cover_image + extras em ordem de sort
+const extraImages = (project.images ?? [])
+  .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+  .map((img) => assetUrl(img.directus_files_id))
+  .filter((url): url is string => url !== null);
+const carouselImages = [
+  ...(thumbnail ? [thumbnail] : []),
+  ...extraImages,
+];
+
 marked.setOptions({ breaks: true, gfm: true });
 const overviewHtml = marked.parse(project.long_description || project.description || "");
 const accessNoteHtml = project.access_note
@@ -188,18 +198,87 @@ const projectsHref = localizedPath("/projects", lang);
             {project.description}
           </p>
 
-          {/* Thumbnail */}
-          {
-            thumbnail && (
-              <div class="aspect-video bg-surface-lowest overflow-hidden mb-12">
-                <img
-                  src={thumbnail}
-                  alt={project.title}
-                  class="w-full h-full object-cover"
-                />
+          {/* Carousel */}
+          {carouselImages.length > 0 && (
+            <div class="mb-12">
+              <div
+                id="proj-carousel"
+                class="relative aspect-video bg-surface-lowest overflow-hidden group"
+                data-count={carouselImages.length}
+              >
+                {/* Slides */}
+                {carouselImages.map((src, i) => (
+                  <img
+                    src={src}
+                    alt={`${project.title} — imagem ${i + 1}`}
+                    class="carousel-slide absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+                    style={i === 0 ? "opacity:1;z-index:1" : "opacity:0;z-index:0"}
+                    loading={i === 0 ? "eager" : "lazy"}
+                  />
+                ))}
+
+                {/* Chevrons — só aparecem quando há mais de 1 imagem */}
+                {carouselImages.length > 1 && (
+                  <>
+                    <button
+                      id="carousel-prev"
+                      aria-label="Imagem anterior"
+                      class="absolute left-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-9 h-9 rounded-full bg-surface/80 border border-outline-variant text-on-surface opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+                    <button
+                      id="carousel-next"
+                      aria-label="Próxima imagem"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-9 h-9 rounded-full bg-surface/80 border border-outline-variant text-on-surface opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                  </>
+                )}
               </div>
-            )
-          }
+
+              {/* Dots */}
+              {carouselImages.length > 1 && (
+                <div id="carousel-dots" class="flex items-center justify-center gap-2 mt-3">
+                  {carouselImages.map((_, i) => (
+                    <button
+                      class="carousel-dot w-1.5 h-1.5 rounded-full transition-all duration-200"
+                      style={i === 0 ? "background:var(--color-primary);width:1.25rem" : "background:var(--color-outline-variant)"}
+                      aria-label={`Ir para imagem ${i + 1}`}
+                      data-index={i}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <script>
+            const carousel = document.getElementById('proj-carousel');
+            if (carousel) {
+              const count = Number(carousel.dataset.count);
+              const slides = carousel.querySelectorAll<HTMLElement>('.carousel-slide');
+              const dots = document.querySelectorAll<HTMLElement>('.carousel-dot');
+              let current = 0;
+
+              function goTo(index: number) {
+                slides[current].style.opacity = '0';
+                slides[current].style.zIndex = '0';
+                dots[current]?.setAttribute('style', 'background:var(--color-outline-variant)');
+
+                current = (index + count) % count;
+
+                slides[current].style.opacity = '1';
+                slides[current].style.zIndex = '1';
+                dots[current]?.setAttribute('style', 'background:var(--color-primary);width:1.25rem');
+              }
+
+              document.getElementById('carousel-prev')?.addEventListener('click', () => goTo(current - 1));
+              document.getElementById('carousel-next')?.addEventListener('click', () => goTo(current + 1));
+              dots.forEach((dot) => dot.addEventListener('click', () => goTo(Number(dot.dataset.index))));
+            }
+          </script>
         </div>
       </div>
     </section>

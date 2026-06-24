@@ -20,6 +20,12 @@ export interface ProjectTranslation {
   access_note: string | null;
 }
 
+export interface ProjectImage {
+  id: number;
+  directus_files_id: string;
+  sort: number | null;
+}
+
 export interface Project {
   id: number;
   slug: string;
@@ -27,6 +33,7 @@ export interface Project {
   description: string;
   long_description: string | null;
   cover_image: string | null;
+  images?: ProjectImage[];
   tech_stack: string[];
   repo_url: string | null;
   live_url: string | null;
@@ -225,7 +232,7 @@ export async function getProjects(locale: Locale = 'pt-BR'): Promise<Project[]> 
       readItems('projects', {
         filter: { status: { _eq: 'published' } },
         sort: ['-start_date', '-id'],
-        fields: ['*', { translations: ['*'] }],
+        fields: ['*', { translations: ['*'] }, { images: ['directus_files_id', 'sort'] }],
       })
     ) as Promise<Project[]>
   );
@@ -243,7 +250,7 @@ export async function getFeaturedProjects(locale: Locale = 'pt-BR'): Promise<Pro
         },
         sort: ['-start_date', '-id'],
         limit: 3,
-        fields: ['*', { translations: ['*'] }],
+        fields: ['*', { translations: ['*'] }, { images: ['directus_files_id', 'sort'] }],
       })
     ) as Promise<Project[]>
   );
@@ -260,7 +267,7 @@ export async function getProject(slug: string, locale: Locale = 'pt-BR'): Promis
           status: { _eq: 'published' },
         },
         limit: 1,
-        fields: ['*', { translations: ['*'] }],
+        fields: ['*', { translations: ['*'] }, { images: ['directus_files_id', 'sort'] }],
       })
     ) as Promise<Project[]>
   );

@@ -44,7 +44,7 @@ function bakeCmsAssets() {
         for (let i = 1; i <= 8; i++) {
           try {
             const r = await fetch(
-              `${URL_}/items/projects?fields=id,cover_image&filter[status][_eq]=published&limit=-1`,
+              `${URL_}/items/projects?fields=id,cover_image,images.directus_files_id&filter[status][_eq]=published&limit=-1`,
               { headers }
             );
             if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -68,8 +68,9 @@ function bakeCmsAssets() {
         const outDir = fileURLToPath(new URL('cms-assets/', dir));
         await mkdir(outDir, { recursive: true });
 
-        // Ids de arquivo a baixar: capas dos projetos + avatar (sem duplicar).
-        const fileIds = [...new Set([...projects.map((p) => p.cover_image), avatarId].filter(Boolean))];
+        // Ids de arquivo a baixar: capas + imagens extras + avatar (sem duplicar).
+        const extraIds = projects.flatMap((p) => (p.images ?? []).map((img) => img.directus_files_id));
+        const fileIds = [...new Set([...projects.map((p) => p.cover_image), ...extraIds, avatarId].filter(Boolean))];
 
         let n = 0;
         const headerRules = [];
