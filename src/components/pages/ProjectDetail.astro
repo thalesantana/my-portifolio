@@ -300,14 +300,15 @@ const projectsHref = localizedPath("/projects", lang);
               }
 
               async function scheduleAuto() {
-                if (count <= 1) return;
+                if (count <= 1) { console.log('[carousel] count<=1, sem auto'); return; }
+                console.log('[carousel] scheduleAuto slide', current, 'src:', slides[current].src);
                 const startedAt = Date.now();
                 const gifMs = await gifDurationMs(slides[current].src);
                 const duration = gifMs ?? DEFAULT_MS;
-                // Desconta o tempo gasto no fetch para o timer bater no momento certo
                 const elapsed   = Date.now() - startedAt;
                 const remaining = Math.max(500, duration - elapsed);
-                autoTimer = setTimeout(() => goTo(current + 1), remaining);
+                console.log('[carousel] gifMs:', gifMs, '→ timer em', remaining, 'ms');
+                autoTimer = setTimeout(() => { console.log('[carousel] avançando!'); goTo(current + 1); }, remaining);
               }
 
               function goTo(index: number, manual = false) {
