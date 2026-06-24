@@ -101,7 +101,7 @@ const projectsHref = localizedPath("/projects", lang);
             <!-- Links -->
             <div class="space-y-3">
               {
-                project.live_url && (
+                project.live_url ? (
                   <a
                     href={project.live_url}
                     target="_blank"
@@ -111,6 +111,11 @@ const projectsHref = localizedPath("/projects", lang);
                     <span class="w-1.5 h-1.5 bg-primary rounded-full" />
                     {t(lang, "project.visit")}
                   </a>
+                ) : (
+                  <span class="flex items-center gap-2 text-sm font-mono text-outline">
+                    <span class="w-1.5 h-1.5 bg-outline rounded-full" />
+                    {t(lang, "project.privateAccess")}
+                  </span>
                 )
               }
               {
