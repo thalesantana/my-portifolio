@@ -300,15 +300,14 @@ const projectsHref = localizedPath("/projects", lang);
               }
 
               async function scheduleAuto() {
-                if (count <= 1) { console.log('[carousel] count<=1, sem auto'); return; }
-                console.log('[carousel] scheduleAuto slide', current, 'src:', slides[current].src);
+                if (count <= 1) return;
                 const startedAt = Date.now();
                 const gifMs = await gifDurationMs(slides[current].src);
-                const duration = gifMs ?? DEFAULT_MS;
+                // Cap de 30 s: falsos positivos no scan binário podem somar delays enormes
+                const duration = gifMs != null ? Math.min(gifMs, 30000) : DEFAULT_MS;
                 const elapsed   = Date.now() - startedAt;
                 const remaining = Math.max(500, duration - elapsed);
-                console.log('[carousel] gifMs:', gifMs, '→ timer em', remaining, 'ms');
-                autoTimer = setTimeout(() => { console.log('[carousel] avançando!'); goTo(current + 1); }, remaining);
+                autoTimer = setTimeout(() => goTo(current + 1), remaining);
               }
 
               function goTo(index: number, manual = false) {
