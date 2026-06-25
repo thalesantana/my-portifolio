@@ -74,7 +74,9 @@ const stats = [
           style="font-size: clamp(3.5rem, 10vw, 8rem);"
         >
           <span class="block text-on-surface">{t(lang, "home.hero.title1")}</span>
-          <span class="block text-primary">{t(lang, "home.hero.title2")}</span>
+          <span class="block text-primary" aria-label="Thales Santana">
+            <span id="typing-name"></span><span id="typing-cursor">|</span>
+          </span>
         </h1>
 
         <p class="text-lg text-on-surface-variant max-w-xl mb-12 leading-relaxed">
@@ -285,3 +287,28 @@ const stats = [
 
   <Footer lang={lang} />
 </BaseLayout>
+
+<style>
+  #typing-cursor {
+    animation: blink 0.9s step-end infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+</style>
+
+<script>
+  const NAME = "Thales Santana";
+  const nameEl   = document.getElementById("typing-name");
+  const cursorEl = document.getElementById("typing-cursor");
+
+  if (nameEl && cursorEl) {
+    let i = 0;
+    // Pequeno delay antes de começar a digitar
+    setTimeout(function type() {
+      nameEl.textContent = NAME.slice(0, ++i);
+      if (i < NAME.length) setTimeout(type, 80);
+    }, 400);
+  }
+</script>
