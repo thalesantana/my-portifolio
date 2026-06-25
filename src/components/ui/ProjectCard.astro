@@ -23,7 +23,7 @@ const href = localizedPath(`/projects/${project.slug}`, lang);
   class="group block bg-surface-low hover:bg-surface-container transition-colors"
 >
   <!-- Thumbnail -->
-  <div class="aspect-video bg-surface-lowest overflow-hidden">
+  <div class="aspect-video bg-surface-lowest overflow-hidden relative">
     {
       thumbnail ? (
         <img
@@ -40,6 +40,11 @@ const href = localizedPath(`/projects/${project.slug}`, lang);
         </div>
       )
     }
+    {project.hackathon_winner && (
+      <span class="absolute top-3 right-3 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30">
+        ★ {t(lang, "personal.winner")}
+      </span>
+    )}
   </div>
 
   <!-- Content -->

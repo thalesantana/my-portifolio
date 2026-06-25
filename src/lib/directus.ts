@@ -39,6 +39,8 @@ export interface Project {
   live_url: string | null;
   access_note: string | null;
   featured: boolean;
+  project_type: 'client' | 'personal' | null;
+  hackathon_winner: boolean;
   sort: number | null;
   status: 'published' | 'draft';
   date_created: string;

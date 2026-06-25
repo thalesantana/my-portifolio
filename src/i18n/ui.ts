@@ -87,6 +87,12 @@ export const ui = {
     'projects.empty.body': 'Os projetos aparecerão aqui assim que forem adicionados no Directus.',
     'projects.card.noPreview': 'Sem prévia',
 
+    // Personal projects section
+    'personal.eyebrow': 'Demos, Pessoais & Hackathons',
+    'personal.title': 'Outros Projetos',
+    'personal.intro': 'Projetos pessoais, demos e participações em hackathons.',
+    'personal.winner': 'Vencedor',
+
     // Project detail
     'project.breadcrumb': 'Projetos',
     'project.period': 'Período',
@@ -178,6 +184,12 @@ export const ui = {
     'projects.empty.title': 'No projects yet',
     'projects.empty.body': 'Projects will appear here once added via Directus.',
     'projects.card.noPreview': 'No preview',
+
+    // Personal projects section
+    'personal.eyebrow': 'Demos, Personal & Hackathons',
+    'personal.title': 'Other Projects',
+    'personal.intro': 'Personal projects, demos and hackathon submissions.',
+    'personal.winner': 'Winner',
 
     // Project detail
     'project.breadcrumb': 'Projects',
