@@ -2,6 +2,7 @@
 import Footer from "../layout/Footer.astro";
 import Header from "../layout/Header.astro";
 import ProjectCard from "../ui/ProjectCard.astro";
+import ProjectCardHorizontal from "../ui/ProjectCardHorizontal.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getProjects, getExperiences, getSiteSettings, assetUrl } from "../../lib/directus";
 import { formatPeriod, sortExperiences } from "../../lib/utils";
@@ -289,9 +290,9 @@ const stats = [
               {t(lang, "personal.intro")}
             </p>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-outline-variant/20">
+          <div class="flex flex-col gap-px bg-outline-variant/20">
             {personalProjects.map((project) => (
-              <ProjectCard project={project} lang={lang} />
+              <ProjectCardHorizontal project={project} lang={lang} />
             ))}
           </div>
         </div>

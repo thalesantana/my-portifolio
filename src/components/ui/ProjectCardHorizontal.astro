@@ -1,0 +1,71 @@
+---
+import type { Project } from "../../lib/directus";
+import { assetUrl } from "../../lib/directus";
+import { t, type Locale } from "../../i18n/ui";
+import { localizedPath } from "../../i18n/routing";
+import TechChip from "./TechChip.astro";
+
+interface Props {
+  project: Project;
+  lang?: Locale;
+}
+
+const { project, lang = "pt-BR" } = Astro.props;
+const thumbnail = assetUrl(project.cover_image);
+const year = project.start_date
+  ? new Date(project.start_date).getUTCFullYear()
+  : null;
+const href = localizedPath(`/projects/${project.slug}`, lang);
+---
+
+<a
+  href={href}
+  class="group flex bg-surface-low hover:bg-surface-container transition-colors w-full"
+>
+  <!-- Thumbnail — fixed width on the left -->
+  <div class="relative w-64 sm:w-80 shrink-0 bg-surface-lowest overflow-hidden">
+    {
+      thumbnail ? (
+        <img
+          src={thumbnail}
+          alt={project.title}
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+        />
+      ) : (
+        <div class="w-full h-full flex items-center justify-center min-h-48">
+          <span class="text-xs font-mono text-outline-variant tracking-widest uppercase">
+            {t(lang, "projects.card.noPreview")}
+          </span>
+        </div>
+      )
+    }
+    {project.hackathon_winner && (
+      <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30">
+        ★ {t(lang, "personal.winner")}
+      </span>
+    )}
+  </div>
+
+  <!-- Content — grows to fill remaining width -->
+  <div class="flex flex-col justify-center p-8 flex-1 min-w-0">
+    {
+      year && (
+        <p class="text-xs font-mono text-primary tracking-widest uppercase mb-2">
+          {year}
+        </p>
+      )
+    }
+    <h3
+      class="font-display text-xl font-semibold text-on-surface mb-3 group-hover:text-primary transition-colors"
+    >
+      {project.title}
+    </h3>
+    <p class="text-sm text-on-surface-variant mb-5 line-clamp-3 leading-relaxed">
+      {project.description}
+    </p>
+    <div class="flex flex-wrap gap-2">
+      {project.tech_stack?.slice(0, 6).map((tech) => <TechChip label={tech} />)}
+    </div>
+  </div>
+</a>
