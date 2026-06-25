@@ -27,21 +27,21 @@ const navLinks = [
 <header
   class="fixed top-0 left-0 right-0 z-50 border-b border-outline-variant/15 bg-surface/90 backdrop-blur-sm"
 >
-  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between">
     <!-- Logo / wordmark -->
     <a
       href={homeBase}
-      class="font-display text-xs tracking-wide sm:text-sm sm:tracking-widest font-semibold text-primary uppercase whitespace-nowrap"
+      class="font-display text-[10px] tracking-tight sm:text-sm sm:tracking-widest font-semibold text-primary uppercase whitespace-nowrap"
     >
       &lt;portfolio /&gt;
     </a>
 
     <!-- Nav -->
-    <nav class="flex items-center gap-8">
+    <nav class="flex items-center gap-2 sm:gap-8">
       {navLinks.map(({ label, href }) => (
         <a
           href={href}
-          class="text-xs font-medium tracking-wider uppercase transition-colors text-on-surface-variant hover:text-on-surface"
+          class="text-[10px] sm:text-xs font-medium tracking-normal sm:tracking-wider uppercase transition-colors text-on-surface-variant hover:text-on-surface whitespace-nowrap"
         >
           {label}
         </a>
