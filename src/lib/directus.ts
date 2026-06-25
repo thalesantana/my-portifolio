@@ -56,6 +56,7 @@ export interface ExperienceTranslation {
 export interface Experience {
   id: number;
   company: string;
+  company_url: string | null;
   role: string;
   start_date: string;
   end_date: string | null;

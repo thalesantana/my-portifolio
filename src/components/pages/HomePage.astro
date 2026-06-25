@@ -211,9 +211,20 @@ const stats = [
                     </div>
                     <div class="lg:col-span-3">
                       <h3 class="font-display text-xl font-semibold text-on-surface mb-1">{exp.role}</h3>
-                      <p class="text-sm text-primary font-mono mb-4">
-                        {exp.company || t(lang, "about.career.freelancer")}
-                      </p>
+                      {exp.company_url ? (
+                        <a
+                          href={exp.company_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="inline-block text-sm text-primary font-mono mb-4 hover:text-[#68fcbf] transition-colors"
+                        >
+                          {exp.company || t(lang, "about.career.freelancer")} →
+                        </a>
+                      ) : (
+                        <p class="text-sm text-primary font-mono mb-4">
+                          {exp.company || t(lang, "about.career.freelancer")}
+                        </p>
+                      )}
                       {exp.description && (
                         <p class="text-on-surface-variant leading-relaxed">{exp.description}</p>
                       )}
