@@ -300,26 +300,108 @@ const stats = [
     )}
 
     <!-- ── CONTATO ────────────────────────────────── -->
-    <section id="contato" class="bg-surface-low py-32">
+    <section id="contato" class="py-32" style="background:#0c1322;">
       <div class="max-w-7xl mx-auto px-6">
-        <div class="max-w-xl">
-          <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4">
-            {t(lang, "contact.eyebrow")}
-          </p>
-          <h2 class="font-display text-4xl font-bold text-on-surface mb-6">
-            {t(lang, "about.contact.title")}
-          </h2>
-          <p class="text-on-surface-variant mb-8">
-            {t(lang, "about.contact.body")}
-          </p>
-          <a
-            href={`mailto:${settings?.email || "contact@example.com"}`}
-            class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-on-primary hover:opacity-90 transition-opacity"
-            style="background: linear-gradient(135deg, #45dfa4, #006041);"
-          >
-            {settings?.email || "contact@example.com"}
-            <span class="font-mono">→</span>
-          </a>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+          <!-- Left: copy -->
+          <div class="lg:pt-2">
+            <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4">
+              {t(lang, "contact.eyebrow")}
+            </p>
+            <h2 class="font-display text-4xl font-bold text-on-surface mb-6">
+              {t(lang, "about.contact.title")}
+            </h2>
+            <p class="text-on-surface-variant leading-relaxed mb-8">
+              {t(lang, "about.contact.body")}
+            </p>
+            {settings?.email && (
+              <a
+                href={`mailto:${settings.email}`}
+                class="inline-flex items-center gap-2 text-sm font-mono text-outline hover:text-primary transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                {settings.email}
+              </a>
+            )}
+          </div>
+
+          <!-- Right: form -->
+          <form id="contact-form" class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <!-- Nome -->
+              <div>
+                <label for="cf-name" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                  {t(lang, "contact.form.name")} <span class="text-primary">*</span>
+                </label>
+                <input
+                  id="cf-name" name="name" type="text" required
+                  placeholder={t(lang, "contact.form.namePlaceholder")}
+                  class="w-full bg-surface-low border border-outline-variant/40 text-on-surface text-sm font-mono px-4 py-3 outline-none focus:border-primary/60 transition-colors placeholder:text-outline/40"
+                />
+              </div>
+              <!-- Email -->
+              <div>
+                <label for="cf-email" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                  {t(lang, "contact.form.email")} <span class="text-primary">*</span>
+                </label>
+                <input
+                  id="cf-email" name="email" type="email" required
+                  placeholder={t(lang, "contact.form.emailPlaceholder")}
+                  class="w-full bg-surface-low border border-outline-variant/40 text-on-surface text-sm font-mono px-4 py-3 outline-none focus:border-primary/60 transition-colors placeholder:text-outline/40"
+                />
+              </div>
+              <!-- Telefone -->
+              <div>
+                <label for="cf-phone" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                  {t(lang, "contact.form.phone")}
+                  <span class="text-outline/50 normal-case tracking-normal ml-1">({t(lang, "contact.form.optional")})</span>
+                </label>
+                <input
+                  id="cf-phone" name="phone" type="tel"
+                  placeholder={t(lang, "contact.form.phonePlaceholder")}
+                  class="w-full bg-surface-low border border-outline-variant/40 text-on-surface text-sm font-mono px-4 py-3 outline-none focus:border-primary/60 transition-colors placeholder:text-outline/40"
+                />
+              </div>
+              <!-- Empresa -->
+              <div>
+                <label for="cf-company" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                  {t(lang, "contact.form.company")}
+                  <span class="text-outline/50 normal-case tracking-normal ml-1">({t(lang, "contact.form.optional")})</span>
+                </label>
+                <input
+                  id="cf-company" name="company" type="text"
+                  placeholder={t(lang, "contact.form.companyPlaceholder")}
+                  class="w-full bg-surface-low border border-outline-variant/40 text-on-surface text-sm font-mono px-4 py-3 outline-none focus:border-primary/60 transition-colors placeholder:text-outline/40"
+                />
+              </div>
+            </div>
+
+            <!-- Mensagem -->
+            <div>
+              <label for="cf-message" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                {t(lang, "contact.form.message")} <span class="text-primary">*</span>
+              </label>
+              <textarea
+                id="cf-message" name="message" required rows="5"
+                placeholder={t(lang, "contact.form.messagePlaceholder")}
+                class="w-full bg-surface-low border border-outline-variant/40 text-on-surface text-sm font-mono px-4 py-3 outline-none focus:border-primary/60 transition-colors placeholder:text-outline/40 resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Submit -->
+            <div class="flex items-center gap-4">
+              <button
+                type="submit"
+                id="cf-submit"
+                class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-on-primary hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                style="background: linear-gradient(135deg, #45dfa4, #006041);"
+              >
+                <span id="cf-submit-label">{t(lang, "contact.form.submit")}</span>
+                <span class="font-mono">→</span>
+              </button>
+              <p id="cf-status" class="text-sm font-mono hidden"></p>
+            </div>
+          </form>
         </div>
       </div>
     </section>
@@ -337,6 +419,55 @@ const stats = [
     50%       { opacity: 0; }
   }
 </style>
+
+<script>
+  // ── Contact form ─────────────────────────────────────────────
+  const form       = document.getElementById('contact-form') as HTMLFormElement | null;
+  const submitBtn  = document.getElementById('cf-submit') as HTMLButtonElement | null;
+  const submitLabel= document.getElementById('cf-submit-label');
+  const statusEl   = document.getElementById('cf-status');
+  const pageLang   = document.documentElement.lang?.startsWith('en') ? 'en' : 'pt-BR';
+
+  const LABELS = {
+    'pt-BR': { sending: 'Enviando...', success: 'Mensagem enviada! Retorno em breve.', error: 'Algo deu errado. Tente novamente.', submit: 'Enviar mensagem' },
+    'en':    { sending: 'Sending...', success: "Message sent! I'll get back to you soon.", error: 'Something went wrong. Please try again.', submit: 'Send message' },
+  } as const;
+  const L = LABELS[pageLang as keyof typeof LABELS] ?? LABELS['pt-BR'];
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!submitBtn || !submitLabel || !statusEl) return;
+
+    submitBtn.disabled = true;
+    submitLabel.textContent = L.sending;
+    statusEl.classList.add('hidden');
+
+    const data = Object.fromEntries(new FormData(form));
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, lang: pageLang }),
+      });
+
+      if (res.ok) {
+        form.reset();
+        statusEl.textContent = L.success;
+        statusEl.className = 'text-sm font-mono text-primary';
+      } else {
+        statusEl.textContent = L.error;
+        statusEl.className = 'text-sm font-mono text-error';
+      }
+    } catch {
+      statusEl.textContent = L.error;
+      statusEl.className = 'text-sm font-mono text-error';
+    } finally {
+      submitBtn.disabled = false;
+      submitLabel.textContent = L.submit;
+    }
+  });
+</script>
 
 <script>
   const firstEl  = document.getElementById("typing-first");

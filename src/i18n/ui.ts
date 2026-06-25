@@ -48,6 +48,23 @@ export const ui = {
     'home.contact.body':
       'Aberto a novas oportunidades, colaborações e desafios de engenharia interessantes.',
 
+    // Contact form
+    'contact.form.name': 'Nome',
+    'contact.form.namePlaceholder': 'Seu nome',
+    'contact.form.email': 'E-mail',
+    'contact.form.emailPlaceholder': 'seu@email.com',
+    'contact.form.phone': 'Telefone',
+    'contact.form.phonePlaceholder': '+55 11 99999-9999',
+    'contact.form.company': 'Empresa',
+    'contact.form.companyPlaceholder': 'Nome da empresa',
+    'contact.form.message': 'Mensagem',
+    'contact.form.messagePlaceholder': 'Conte sobre o projeto, oportunidade ou ideia...',
+    'contact.form.optional': 'opcional',
+    'contact.form.submit': 'Enviar mensagem',
+    'contact.form.sending': 'Enviando...',
+    'contact.form.success': 'Mensagem enviada! Retorno em breve.',
+    'contact.form.error': 'Algo deu errado. Tente novamente.',
+
     // Stack categories
     'stack.languages': 'Linguagens',
     'stack.backend': 'Backend',
@@ -145,6 +162,23 @@ export const ui = {
     'home.contact.title': "Let's build something.",
     'home.contact.body':
       'Open to new opportunities, collaborations, and interesting engineering challenges.',
+
+    // Contact form
+    'contact.form.name': 'Name',
+    'contact.form.namePlaceholder': 'Your name',
+    'contact.form.email': 'Email',
+    'contact.form.emailPlaceholder': 'your@email.com',
+    'contact.form.phone': 'Phone',
+    'contact.form.phonePlaceholder': '+1 555 000 0000',
+    'contact.form.company': 'Company',
+    'contact.form.companyPlaceholder': 'Company name',
+    'contact.form.message': 'Message',
+    'contact.form.messagePlaceholder': 'Tell me about the project, opportunity or idea...',
+    'contact.form.optional': 'optional',
+    'contact.form.submit': 'Send message',
+    'contact.form.sending': 'Sending...',
+    'contact.form.success': 'Message sent! I\'ll get back to you soon.',
+    'contact.form.error': 'Something went wrong. Please try again.',
 
     // Stack categories
     'stack.languages': 'Languages',
