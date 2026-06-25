@@ -200,43 +200,109 @@ const stats = [
         </h2>
 
         {sortedExperiences.length > 0 ? (
-          <div class="relative">
-            <div class="absolute left-0 top-0 bottom-0 w-px bg-outline-variant/40 hidden lg:block" />
-            <div class="space-y-16">
-              {sortedExperiences.map((exp) => (
-                <div class="lg:pl-12 relative">
-                  <div class="absolute left-0 top-1.5 w-2 h-2 bg-primary hidden lg:block" style="transform: translateX(-3.5px);" />
-                  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    <div class="lg:col-span-1">
-                      <p class="text-xs font-mono text-outline tracking-wider">
+          <>
+            {/* ── DESKTOP: centro + esquerda + direita ─────────── */}
+            <div class="hidden lg:block relative" id="timeline-root">
+              {/* Track (linha de fundo, dim) */}
+              <div
+                id="tl-track"
+                class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px"
+                style="background:rgba(63,73,68,0.4)"
+              />
+              {/* Fill (cresce com o scroll) */}
+              <div
+                id="tl-fill"
+                class="absolute left-1/2 -translate-x-1/2 top-0 w-px origin-top pointer-events-none"
+                style="height:0px;background:rgba(69,223,164,0.55)"
+              />
+              {/* Glowing dot */}
+              <div
+                id="tl-dot"
+                class="absolute left-1/2 pointer-events-none"
+                style="top:0px;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#45dfa4;box-shadow:0 0 12px 4px rgba(69,223,164,0.45)"
+              />
+
+              <div class="space-y-20">
+                {sortedExperiences.map((exp) => (
+                  <div class="grid items-start" style="grid-template-columns:1fr 40px 1fr">
+                    {/* Left — period + company */}
+                    <div class="pr-12 text-right">
+                      <p class="text-xs font-mono text-outline tracking-wider mb-2">
                         {formatPeriod(exp.start_date, exp.end_date, exp.current, lang)}
                       </p>
-                    </div>
-                    <div class="lg:col-span-3">
-                      <h3 class="font-display text-xl font-semibold text-on-surface mb-1">{exp.role}</h3>
                       {exp.company_url ? (
                         <a
                           href={exp.company_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          class="inline-block text-sm text-primary font-mono mb-4 hover:text-[#68fcbf] transition-colors"
+                          class="text-sm text-primary font-mono hover:text-[#68fcbf] transition-colors"
                         >
                           {exp.company || t(lang, "about.career.freelancer")} →
                         </a>
                       ) : (
-                        <p class="text-sm text-primary font-mono mb-4">
+                        <p class="text-sm text-primary font-mono">
                           {exp.company || t(lang, "about.career.freelancer")}
                         </p>
                       )}
+                    </div>
+
+                    {/* Center — dot on the line */}
+                    <div class="flex justify-center pt-1">
+                      <div
+                        class="w-2.5 h-2.5 border border-primary bg-surface-low shrink-0"
+                        style="border-radius:0"
+                      />
+                    </div>
+
+                    {/* Right — role + description */}
+                    <div class="pl-12">
+                      <h3 class="font-display text-xl font-semibold text-on-surface mb-3">
+                        {exp.role}
+                      </h3>
                       {exp.description && (
-                        <p class="text-on-surface-variant leading-relaxed">{exp.description}</p>
+                        <p class="text-on-surface-variant leading-relaxed text-sm">
+                          {exp.description}
+                        </p>
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+
+            {/* ── MOBILE: layout original ──────────────────────── */}
+            <div class="lg:hidden relative">
+              <div class="absolute left-0 top-0 bottom-0 w-px bg-outline-variant/40" />
+              <div class="space-y-16">
+                {sortedExperiences.map((exp) => (
+                  <div class="pl-8 relative">
+                    <div class="absolute left-0 top-1.5 w-2 h-2 bg-primary" style="transform:translateX(-3.5px);" />
+                    <p class="text-xs font-mono text-outline tracking-wider mb-1">
+                      {formatPeriod(exp.start_date, exp.end_date, exp.current, lang)}
+                    </p>
+                    <h3 class="font-display text-xl font-semibold text-on-surface mb-1">{exp.role}</h3>
+                    {exp.company_url ? (
+                      <a
+                        href={exp.company_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-block text-sm text-primary font-mono mb-3 hover:text-[#68fcbf] transition-colors"
+                      >
+                        {exp.company || t(lang, "about.career.freelancer")} →
+                      </a>
+                    ) : (
+                      <p class="text-sm text-primary font-mono mb-3">
+                        {exp.company || t(lang, "about.career.freelancer")}
+                      </p>
+                    )}
+                    {exp.description && (
+                      <p class="text-on-surface-variant leading-relaxed text-sm">{exp.description}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         ) : (
           <p class="text-outline font-mono text-sm">{t(lang, "about.career.empty")}</p>
         )}
@@ -419,6 +485,27 @@ const stats = [
     50%       { opacity: 0; }
   }
 </style>
+
+<script>
+  // ── Timeline scroll animation (desktop only) ─────────────────
+  const track = document.getElementById('tl-track');
+  const fill  = document.getElementById('tl-fill');
+  const dot   = document.getElementById('tl-dot');
+
+  if (track && fill && dot) {
+    const update = () => {
+      const rect     = track.getBoundingClientRect();
+      const viewH    = window.innerHeight;
+      // Começa a preencher quando o topo da track entra na tela, termina quando o fundo sai
+      const progress = Math.min(1, Math.max(0, (viewH * 0.55 - rect.top) / rect.height));
+      const px       = rect.height * progress;
+      (fill as HTMLElement).style.height = px + 'px';
+      (dot  as HTMLElement).style.top    = px + 'px';
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+</script>
 
 <script>
   // ── Contact form ─────────────────────────────────────────────
