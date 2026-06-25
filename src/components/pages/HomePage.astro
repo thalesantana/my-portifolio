@@ -73,9 +73,11 @@ const stats = [
           class="font-display font-bold leading-none tracking-tight mb-8"
           style="font-size: clamp(3.5rem, 10vw, 8rem);"
         >
-          <span class="block text-on-surface">Thales</span>
+          <span class="block text-on-surface" aria-label="Thales">
+            <span id="typing-first"></span><span id="typing-cursor">|</span>
+          </span>
           <span class="block text-primary" aria-label="Santana">
-            <span id="typing-name"></span><span id="typing-cursor">|</span>
+            <span id="typing-second"></span>
           </span>
         </h1>
 
@@ -299,16 +301,25 @@ const stats = [
 </style>
 
 <script>
-  const NAME = "Santana";
-  const nameEl   = document.getElementById("typing-name");
-  const cursorEl = document.getElementById("typing-cursor");
+  const firstEl  = document.getElementById("typing-first");
+  const secondEl = document.getElementById("typing-second");
+  const cursor   = document.getElementById("typing-cursor");
 
-  if (nameEl && cursorEl) {
-    let i = 0;
-    // Pequeno delay antes de começar a digitar
-    setTimeout(function type() {
-      nameEl.textContent = NAME.slice(0, ++i);
-      if (i < NAME.length) setTimeout(type, 80);
-    }, 400);
+  if (firstEl && secondEl && cursor) {
+    function typeWord(el: HTMLElement, word: string, delay: number, cb?: () => void) {
+      let i = 0;
+      setTimeout(function tick() {
+        el.textContent = word.slice(0, ++i);
+        if (i < word.length) setTimeout(tick, 80);
+        else if (cb) setTimeout(cb, 120);
+      }, delay);
+    }
+
+    // 1. Digita "Thales" na linha 1 (cursor fica na linha 1)
+    typeWord(firstEl, "Thales", 400, () => {
+      // 2. Move o cursor para a linha 2 e digita "Santana"
+      secondEl.after(cursor);
+      typeWord(secondEl, "Santana", 0);
+    });
   }
 </script>
