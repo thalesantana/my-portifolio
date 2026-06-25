@@ -20,10 +20,10 @@ const href = localizedPath(`/projects/${project.slug}`, lang);
 
 <a
   href={href}
-  class="group flex bg-surface-low hover:bg-surface-container transition-colors w-full"
+  class="group flex flex-col lg:flex-row bg-surface-low hover:bg-surface-container transition-colors w-full"
 >
-  <!-- Thumbnail — fixed width on the left -->
-  <div class="relative w-64 sm:w-80 shrink-0 bg-surface-lowest overflow-hidden">
+  <!-- Thumbnail — full width on mobile, fixed width on desktop -->
+  <div class="relative aspect-video lg:aspect-auto lg:w-80 shrink-0 bg-surface-lowest overflow-hidden">
     {
       thumbnail ? (
         <img
@@ -48,7 +48,7 @@ const href = localizedPath(`/projects/${project.slug}`, lang);
   </div>
 
   <!-- Content — grows to fill remaining width -->
-  <div class="flex flex-col justify-center p-8 flex-1 min-w-0">
+  <div class="flex flex-col justify-center p-6 lg:p-8 flex-1 min-w-0">
     {
       year && (
         <p class="text-xs font-mono text-primary tracking-widest uppercase mb-2">
