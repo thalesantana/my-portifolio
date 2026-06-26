@@ -1,14 +1,12 @@
 ---
 import Footer from "../layout/Footer.astro";
 import Header from "../layout/Header.astro";
-import ProjectCard from "../ui/ProjectCard.astro";
 import ProjectCardHorizontal from "../ui/ProjectCardHorizontal.astro";
 import TechOrb from "../ui/TechOrb.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getProjects, getExperiences, getSiteSettings, assetUrl } from "../../lib/directus";
 import { formatPeriod, sortExperiences } from "../../lib/utils";
 import { t, type Locale } from "../../i18n/ui";
-import { localizedPath } from "../../i18n/routing";
 
 interface Props {
   lang: Locale;
@@ -144,7 +142,7 @@ const avatarFocal = settings?.avatarFocal
         </div>
 
         <!-- ── DIREITA: órbita de tecnologias ── -->
-        <div class="relative hidden lg:flex items-center justify-center min-h-[30rem]">
+        <div class="relative hidden lg:flex items-center justify-center min-h-120">
           <TechOrb />
         </div>
       </div>
