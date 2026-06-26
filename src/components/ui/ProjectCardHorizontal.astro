@@ -40,22 +40,22 @@ const href = localizedPath(`/projects/${project.slug}`, lang);
         </div>
       )
     }
-    {project.hackathon_winner && (
-      <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30">
-        ★ {t(lang, "personal.winner")}
-      </span>
-    )}
   </div>
 
   <!-- Content — grows to fill remaining width -->
   <div class="flex flex-col justify-center p-6 lg:p-8 flex-1 min-w-0">
-    {
-      year && (
-        <p class="text-xs font-mono text-primary tracking-widest uppercase mb-2">
+    <div class="flex items-center gap-3 mb-2">
+      {year && (
+        <p class="text-xs font-mono text-primary tracking-widest uppercase">
           {year}
         </p>
-      )
-    }
+      )}
+      {project.hackathon_winner && (
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-mono font-semibold tracking-widest uppercase rounded-full bg-[#FFD700]/15 text-[#FFD700] border border-[#FFD700]/30">
+          ★ {t(lang, "personal.winner")}
+        </span>
+      )}
+    </div>
     <h3
       class="font-display text-xl font-semibold text-on-surface mb-3 group-hover:text-primary transition-colors"
     >
