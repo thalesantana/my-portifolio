@@ -101,6 +101,22 @@ const enHref = Astro.site
 
     <title>{title}</title>
 
+    <!-- Reveal on scroll (utilitário global: data-reveal / data-parallax) -->
+    <style is:global>
+      [data-reveal] {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        transition-delay: var(--d, 0ms);
+      }
+      [data-reveal="left"]  { transform: translateX(-24px); }
+      [data-reveal="right"] { transform: translateX(24px); }
+      [data-reveal].in-view { opacity: 1; transform: none; }
+      @media (prefers-reduced-motion: reduce) {
+        [data-reveal] { opacity: 1; transform: none; transition: none; }
+      }
+    </style>
+
     <!-- Umami Analytics -->
     {umamiWebsiteId && umamiSrc && (
       <script is:inline defer src={umamiSrc} data-website-id={umamiWebsiteId}></script>
@@ -108,5 +124,49 @@ const enHref = Astro.site
   </head>
   <body class="min-h-screen">
     <slot />
+
+    <script>
+      // ── Reveal ao entrar na viewport + parallax leve (global) ──
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const revealEls = document.querySelectorAll<HTMLElement>("[data-reveal]");
+      if (reduce) {
+        revealEls.forEach((el) => el.classList.add("in-view"));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add("in-view");
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+        );
+        revealEls.forEach((el) => io.observe(el));
+      }
+
+      if (!reduce) {
+        const layers = Array.from(document.querySelectorAll<HTMLElement>("[data-parallax]"));
+        if (layers.length) {
+          let raf = 0;
+          const apply = () => {
+            const y = window.scrollY;
+            for (const el of layers) {
+              const speed = parseFloat(el.dataset.parallax || "0.1");
+              el.style.transform = `translate3d(0, ${y * speed}px, 0)`;
+            }
+            raf = 0;
+          };
+          window.addEventListener(
+            "scroll",
+            () => { if (!raf) raf = requestAnimationFrame(apply); },
+            { passive: true }
+          );
+          apply();
+        }
+      }
+    </script>
   </body>
 </html>
