@@ -54,7 +54,7 @@ const bioHtml = marked.parse(settings?.bio || t(lang, "about.bioFallback"));
       aria-hidden="true"
     ></div>
 
-    <!-- ── HERO + SOBRE (unificado) ────────────────── -->
+    <!-- ── HERO + SOBRE ────────────────── -->
     <section
       id="sobre"
       class="min-h-screen flex flex-col justify-center relative overflow-hidden pt-16"
@@ -119,12 +119,12 @@ const bioHtml = marked.parse(settings?.bio || t(lang, "about.bioFallback"));
             </h1>
           </div>
 
-          <p class="font-display text-lg sm:text-xl font-medium text-on-surface-variant mb-6">
+          <p class="font-display text-lg sm:text-xl font-medium text-white mb-6">
             {settings?.role}
           </p>
 
           <div
-            class="text-on-surface-variant leading-relaxed max-w-xl mb-10 space-y-4 [&_strong]:text-primary [&_strong]:font-semibold"
+            class="text-white leading-relaxed max-w-xl mb-10 space-y-4 [&_strong]:text-primary [&_strong]:font-semibold"
             set:html={bioHtml}
           />
 
