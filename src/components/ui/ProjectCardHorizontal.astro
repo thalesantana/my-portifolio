@@ -20,10 +20,10 @@ const href = localizedPath(`/projects/${project.slug}`, lang);
 
 <a
   href={href}
-  class="group flex flex-col lg:flex-row bg-surface-low hover:bg-surface-container transition-colors w-full"
+  class="tilt-card group flex flex-col w-full h-full rounded-2xl overflow-hidden border border-white/10 bg-white/[0.06] backdrop-blur-xl hover:bg-white/[0.1] hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/20 transition-[background,border-color,box-shadow] duration-300 will-change-transform [transform-style:preserve-3d]"
 >
-  <!-- Thumbnail — full width on mobile, fixed width on desktop -->
-  <div class="relative aspect-video lg:aspect-auto lg:w-80 shrink-0 bg-surface-lowest overflow-hidden">
+  <!-- Thumbnail no topo -->
+  <div class="relative aspect-video w-full shrink-0 bg-surface-lowest overflow-hidden">
     {
       thumbnail ? (
         <img
@@ -42,8 +42,8 @@ const href = localizedPath(`/projects/${project.slug}`, lang);
     }
   </div>
 
-  <!-- Content — grows to fill remaining width -->
-  <div class="flex flex-col justify-center p-6 lg:p-8 flex-1 min-w-0">
+  <!-- Content -->
+  <div class="flex flex-col p-5 flex-1 min-w-0">
     <div class="flex items-center gap-3 mb-2">
       {year && (
         <p class="text-xs font-mono text-primary tracking-widest uppercase">
@@ -57,15 +57,15 @@ const href = localizedPath(`/projects/${project.slug}`, lang);
       )}
     </div>
     <h3
-      class="font-display text-xl font-semibold text-on-surface mb-3 group-hover:text-primary transition-colors"
+      class="font-display text-lg font-semibold text-on-surface mb-2 group-hover:text-primary transition-colors"
     >
       {project.title}
     </h3>
-    <p class="text-sm text-on-surface-variant mb-5 line-clamp-3 leading-relaxed">
+    <p class="text-sm text-on-surface-variant mb-4 line-clamp-2 leading-relaxed">
       {project.description}
     </p>
-    <div class="flex flex-wrap gap-2">
-      {project.tech_stack?.slice(0, 6).map((tech) => <TechChip label={tech} />)}
+    <div class="flex flex-wrap gap-2 mt-auto pt-1">
+      {project.tech_stack?.slice(0, 4).map((tech) => <TechChip label={tech} />)}
     </div>
   </div>
 </a>
