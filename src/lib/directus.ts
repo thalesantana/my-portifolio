@@ -331,5 +331,16 @@ export async function getSiteSettings(locale: Locale = 'pt-BR'): Promise<SiteSet
  */
 export function assetUrl(fileId: string | null | undefined): string | null {
   if (!fileId) return null;
+  // Em dev não há bake (os assets só são "assados" no build), então aponta
+  // direto pro Directus pra a imagem carregar em localhost. Em build/prod
+  // usa o caminho local servido pela CDN.
+  if (import.meta.env.DEV) {
+    const url = readEnv('DIRECTUS_URL');
+    const token = readEnv('DIRECTUS_TOKEN');
+    if (url) {
+      const qs = token ? `?access_token=${token}` : '';
+      return `${url.replace(/\/$/, '')}/assets/${fileId}${qs}`;
+    }
+  }
   return `/cms-assets/${fileId}`;
 }

@@ -3,6 +3,7 @@ import Footer from "../layout/Footer.astro";
 import Header from "../layout/Header.astro";
 import ProjectCard from "../ui/ProjectCard.astro";
 import ProjectCardHorizontal from "../ui/ProjectCardHorizontal.astro";
+import TechOrb from "../ui/TechOrb.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getProjects, getExperiences, getSiteSettings, assetUrl } from "../../lib/directus";
 import { formatPeriod, sortExperiences } from "../../lib/utils";
@@ -33,27 +34,28 @@ const [settings, projects, experiences] = await Promise.all([
 const sortedExperiences = sortExperiences(experiences);
 const clientProjects   = projects.filter(p => !p.project_type || p.project_type === 'client');
 const personalProjects = projects.filter(p => p.project_type === 'personal');
-const years = new Date().getFullYear() - 2021;
 const avatarUrl = assetUrl(settings?.avatar);
 const avatarFocal = settings?.avatarFocal
   ? `object-position: ${settings.avatarFocal.x}% ${settings.avatarFocal.y}%`
   : undefined;
 
-const stats = [
-  { label: t(lang, "about.stats.focus"),      value: t(lang, "about.stats.focusValue") },
-  { label: t(lang, "about.stats.basedIn"),     value: settings?.location || t(lang, "about.stats.basedInValue") },
-  { label: t(lang, "about.stats.experience"),  value: `${years}+ ${t(lang, "about.stats.experienceValue")}` },
-  { label: t(lang, "about.stats.status"),      value: t(lang, "about.stats.statusValue") },
-];
 ---
 
 <BaseLayout title="Portfolio — Software Engineer" description={settings?.role} lang={lang}>
   <Header lang={lang} />
 
   <main>
-    <!-- ── HERO ────────────────────────────────────── -->
+    <!-- Glow verde que segue o cursor (mesma "sombra" da esfera) -->
+    <div
+      id="cursor-glow"
+      class="pointer-events-none fixed top-0 left-0 z-40 w-72 h-72 rounded-full opacity-0 transition-opacity duration-300 blur-2xl"
+      style="background: radial-gradient(circle, rgba(69,223,164,0.22), rgba(69,223,164,0.06) 45%, transparent 70%); mix-blend-mode: screen; will-change: transform;"
+      aria-hidden="true"
+    ></div>
+
+    <!-- ── HERO + SOBRE (unificado) ────────────────── -->
     <section
-      id="hero"
+      id="sobre"
       class="min-h-screen flex flex-col justify-center relative overflow-hidden pt-16"
     >
       <!-- Grid background -->
@@ -67,124 +69,83 @@ const stats = [
         style="background: radial-gradient(circle, #45dfa4, transparent);"
       />
 
-      <div class="max-w-7xl mx-auto px-6 py-32 relative z-10">
-        <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-8">
-          {settings?.location || "Belo Horizonte, Brasil"} · {t(lang, "home.available")}
-        </p>
-
-        <h1
-          class="font-display font-bold leading-none tracking-tight mb-8"
-          style="font-size: clamp(3.5rem, 10vw, 8rem);"
-        >
-          <span class="block text-on-surface" aria-label="Thales">
-            <span id="typing-first"></span><span id="typing-cursor">|</span>
-          </span>
-          <span class="block text-primary" aria-label="Santana">
-            <span id="typing-second"></span>
-          </span>
-        </h1>
-
-        <p class="text-lg text-on-surface-variant max-w-xl mb-12 leading-relaxed">
-          {settings?.role}
-        </p>
-
-        <div class="flex flex-wrap gap-4">
-          <a
-            href="#projetos"
-            class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-on-primary hover:opacity-90 transition-opacity"
-            style="background: linear-gradient(135deg, #45dfa4, #006041);"
-          >
-            {t(lang, "home.cta.projects")}
-            <span class="font-mono">→</span>
-          </a>
-          <a
-            href="#sobre"
-            class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-primary border border-primary/30 hover:bg-primary/10 transition-colors"
-          >
-            {t(lang, "home.cta.about")}
-          </a>
-        </div>
+      <!-- Órbita atrás do texto (só no mobile, opacidade baixa) -->
+      <div
+        class="lg:hidden absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-30"
+        aria-hidden="true"
+      >
+        <TechOrb class="w-72 h-72 sm:w-80 sm:h-80" />
       </div>
-    </section>
 
-    <!-- ── SOBRE MIM ──────────────────────────────── -->
-    <section id="sobre" class="py-32">
-      <div class="max-w-7xl mx-auto px-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
-          <!-- Left: foto + bio -->
-          <div>
-            <p class="text-xs font-mono text-primary tracking-[0.3em] uppercase mb-4">
-              {t(lang, "about.eyebrow")}
-            </p>
-            <div class="flex flex-col sm:flex-row sm:items-center gap-6 mb-8">
-              <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden ring-1 ring-outline-variant/40 bg-surface-low shrink-0">
-                {avatarUrl ? (
-                  <img
-                    src={avatarUrl}
-                    alt={settings?.name ?? "Profile photo"}
-                    width="128"
-                    height="128"
-                    class="w-full h-full object-cover"
-                    style={avatarFocal}
-                  />
-                ) : (
-                  <svg viewBox="0 0 160 160" class="w-full h-full text-outline" aria-hidden="true">
-                    <rect width="160" height="160" class="fill-surface-container" />
-                    <circle cx="80" cy="62" r="28" fill="currentColor" />
-                    <path d="M28 148c0-28.7 23.3-52 52-52s52 23.3 52 52" fill="currentColor" />
-                  </svg>
-                )}
-              </div>
-              <h2 class="font-display text-5xl lg:text-6xl font-bold text-on-surface leading-tight">
-                {t(lang, "about.title1")}<br />{t(lang, "about.title2")}
-              </h2>
+      <div class="max-w-7xl mx-auto px-6 py-28 relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <!-- ── ESQUERDA: identidade ── -->
+        <div>
+          <!-- Foto circular à esquerda do nome (revelada após o typing) -->
+          <div class="flex items-center mb-5">
+            <div
+              id="hero-photo"
+              class="shrink-0 w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden ring-1 ring-outline-variant/40 bg-surface-low origin-left"
+            >
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={settings?.name ?? "Profile photo"}
+                  width="400"
+                  height="400"
+                  class="w-full h-full object-cover"
+                  style={avatarFocal}
+                />
+              ) : (
+                <svg viewBox="0 0 160 160" class="w-full h-full text-outline" aria-hidden="true">
+                  <rect width="160" height="160" class="fill-surface-container" />
+                  <circle cx="80" cy="62" r="28" fill="currentColor" />
+                  <path d="M28 148c0-28.7 23.3-52 52-52s52 23.3 52 52" fill="currentColor" />
+                </svg>
+              )}
             </div>
 
-            <div class="text-on-surface-variant leading-relaxed space-y-4 max-w-lg">
-              <p>{settings?.bio || t(lang, "about.bioFallback")}</p>
-            </div>
-
-            {(settings?.github || settings?.linkedin) && (
-              <div class="flex gap-6 mt-8">
-                {settings?.github && (
-                  <a
-                    href={settings.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 text-xs font-mono text-outline hover:text-primary tracking-widest uppercase transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.014 2.898-.014 3.293 0 .322.216.694.825.576C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-                    </svg>
-                    GitHub →
-                  </a>
-                )}
-                {settings?.linkedin && (
-                  <a
-                    href={settings.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 text-xs font-mono text-outline hover:text-primary tracking-widest uppercase transition-colors"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                    </svg>
-                    LinkedIn →
-                  </a>
-                )}
-              </div>
-            )}
+            <h1
+              class="font-display font-bold leading-none tracking-tight"
+              style="font-size: clamp(2.5rem, 5vw, 4.25rem);"
+            >
+              <span class="block text-on-surface" aria-label="Thales">
+                <span id="typing-first"></span><span id="typing-cursor">|</span>
+              </span>
+              <span class="block text-primary" aria-label="Santana">
+                <span id="typing-second"></span>
+              </span>
+            </h1>
           </div>
 
-          <!-- Right: stats -->
-          <div class="grid grid-cols-2 gap-px bg-outline-variant/20 lg:mt-12">
-            {stats.map(({ label, value }) => (
-              <div class="bg-surface-low p-8">
-                <p class="text-xs font-mono text-outline tracking-widest uppercase mb-2">{label}</p>
-                <p class="font-display text-lg font-semibold text-on-surface">{value}</p>
-              </div>
-            ))}
+          <p class="font-display text-lg sm:text-xl font-medium text-on-surface-variant mb-6">
+            {settings?.role}
+          </p>
+
+          <p class="text-on-surface-variant leading-relaxed max-w-xl mb-10">
+            {settings?.bio || t(lang, "about.bioFallback")}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <a
+              href="#projetos"
+              class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-on-primary hover:opacity-90 transition-opacity"
+              style="background: linear-gradient(135deg, #45dfa4, #006041);"
+            >
+              {t(lang, "home.cta.projects")}
+              <span class="font-mono">↓</span>
+            </a>
+            <a
+              href="#contato"
+              class="inline-flex items-center gap-3 px-6 py-3 font-medium text-sm text-on-surface border border-outline-variant/40 hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              {t(lang, "home.cta.contact")}
+            </a>
           </div>
+        </div>
+
+        <!-- ── DIREITA: órbita de tecnologias ── -->
+        <div class="relative hidden lg:flex items-center justify-center min-h-[30rem]">
+          <TechOrb />
         </div>
       </div>
     </section>
@@ -202,23 +163,20 @@ const stats = [
         {sortedExperiences.length > 0 ? (
           <>
             {/* ── DESKTOP: centro + esquerda + direita ─────────── */}
-            <div class="hidden lg:block relative" id="timeline-root">
+            <div class="tl-root hidden lg:block relative">
               {/* Track (linha de fundo, dim) */}
               <div
-                id="tl-track"
-                class="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px"
+                class="tl-track absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px"
                 style="background:rgba(63,73,68,0.4)"
               />
               {/* Fill (cresce com o scroll) */}
               <div
-                id="tl-fill"
-                class="absolute left-1/2 -translate-x-1/2 top-0 w-px origin-top pointer-events-none"
+                class="tl-fill absolute left-1/2 -translate-x-1/2 top-0 w-px origin-top pointer-events-none"
                 style="height:0px;background:rgba(69,223,164,0.55)"
               />
               {/* Glowing dot */}
               <div
-                id="tl-dot"
-                class="absolute left-1/2 pointer-events-none"
+                class="tl-dot absolute left-1/2 pointer-events-none"
                 style="top:0px;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#45dfa4;box-shadow:0 0 12px 4px rgba(69,223,164,0.45)"
               />
 
@@ -246,12 +204,9 @@ const stats = [
                       )}
                     </div>
 
-                    {/* Center — dot on the line */}
+                    {/* Center — hollow circle that fills on scroll */}
                     <div class="flex justify-center pt-1">
-                      <div
-                        class="w-2.5 h-2.5 border border-primary bg-surface-low shrink-0"
-                        style="border-radius:0"
-                      />
+                      <div class="tl-node w-3.5 h-3.5 rounded-full border-2 border-primary/40 bg-surface-low shrink-0 transition-all duration-300" />
                     </div>
 
                     {/* Right — role + description */}
@@ -270,13 +225,30 @@ const stats = [
               </div>
             </div>
 
-            {/* ── MOBILE: layout original ──────────────────────── */}
-            <div class="lg:hidden relative">
-              <div class="absolute left-0 top-0 bottom-0 w-px bg-outline-variant/40" />
+            {/* ── MOBILE: mesma animação da desktop, linha à esquerda ── */}
+            <div class="tl-root lg:hidden relative">
+              {/* Track */}
+              <div
+                class="tl-track absolute left-0 top-0 bottom-0 w-px"
+                style="background:rgba(63,73,68,0.4)"
+              />
+              {/* Fill */}
+              <div
+                class="tl-fill absolute left-0 top-0 w-px origin-top pointer-events-none"
+                style="height:0px;background:rgba(69,223,164,0.55)"
+              />
+              {/* Glowing dot */}
+              <div
+                class="tl-dot absolute left-0 pointer-events-none"
+                style="top:0px;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#45dfa4;box-shadow:0 0 12px 4px rgba(69,223,164,0.45)"
+              />
               <div class="space-y-16">
                 {sortedExperiences.map((exp) => (
                   <div class="pl-8 relative">
-                    <div class="absolute left-0 top-1.5 w-2 h-2 bg-primary" style="transform:translateX(-3.5px);" />
+                    <div
+                      class="tl-node absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full border-2 border-primary/40 bg-surface-low transition-all duration-300"
+                      style="transform:translateX(-50%)"
+                    />
                     <p class="text-xs font-mono text-outline tracking-wider mb-1">
                       {formatPeriod(exp.start_date, exp.end_date, exp.current, lang)}
                     </p>
@@ -484,27 +456,80 @@ const stats = [
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
   }
+
+  /* Foto: começa colapsada (nome colado à esquerda); ao revelar, "empurra"
+     o texto pra direita (max-width/margin) e dá um pop (scale com overshoot). */
+  #hero-photo {
+    max-width: 0;
+    margin-right: 0;
+    opacity: 0;
+    transform: scale(0);
+    transition: max-width 0.55s ease-out, margin-right 0.55s ease-out, opacity 0.4s ease-out;
+  }
+  #hero-photo.revealed {
+    max-width: 9rem;
+    margin-right: 1.5rem;
+    opacity: 1;
+    animation: heroPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  @keyframes heroPop {
+    0%   { transform: scale(0); }
+    60%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+
+  /* Nós da timeline: vazados, preenchem quando o scroll passa por eles */
+  .tl-node.filled {
+    background-color: #45dfa4;
+    border-color: #45dfa4;
+    box-shadow: 0 0 10px 2px rgba(69, 223, 164, 0.45);
+  }
 </style>
 
 <script>
-  // ── Timeline scroll animation (desktop only) ─────────────────
-  const track = document.getElementById('tl-track');
-  const fill  = document.getElementById('tl-fill');
-  const dot   = document.getElementById('tl-dot');
+  // ── Timeline scroll animation (desktop + mobile) ─────────────
+  const center = (n: HTMLElement, rootTop: number) =>
+    n.getBoundingClientRect().top + n.offsetHeight / 2 - rootTop;
 
-  if (track && fill && dot) {
+  const wireTimeline = (root: HTMLElement) => {
+    const track = root.querySelector<HTMLElement>('.tl-track');
+    const fill  = root.querySelector<HTMLElement>('.tl-fill');
+    const dot   = root.querySelector<HTMLElement>('.tl-dot');
+    const nodes = Array.from(root.querySelectorAll<HTMLElement>('.tl-node'));
+    if (!track || !fill || !dot || !nodes.length) return;
+
     const update = () => {
-      const rect     = track.getBoundingClientRect();
+      // Ignora quando o root está oculto (ex.: layout do outro breakpoint)
+      if (root.offsetParent === null) return;
+
+      const rootRect = root.getBoundingClientRect();
       const viewH    = window.innerHeight;
-      // Começa a preencher quando o topo da track entra na tela, termina quando o fundo sai
-      const progress = Math.min(1, Math.max(0, (viewH * 0.55 - rect.top) / rect.height));
-      const px       = rect.height * progress;
-      (fill as HTMLElement).style.height = px + 'px';
-      (dot  as HTMLElement).style.top    = px + 'px';
+      const firstY   = center(nodes[0], rootRect.top);
+      const lastY    = center(nodes[nodes.length - 1], rootRect.top);
+      const span     = Math.max(1, lastY - firstY);
+
+      // Linha/fill começam no 1º nó e terminam no último
+      track.style.top    = firstY + 'px';
+      track.style.bottom = (rootRect.height - lastY) + 'px';
+      fill.style.top     = firstY + 'px';
+
+      const progress = Math.min(1, Math.max(0, (viewH * 0.55 - rootRect.top - firstY) / span));
+      const px       = span * progress;
+      const dotY     = firstY + px;
+      fill.style.height = px + 'px';
+      dot.style.top     = dotY + 'px';
+
+      // Preenche cada nó assim que a bolinha passa por ele
+      for (const node of nodes) {
+        node.classList.toggle('filled', dotY >= center(node, rootRect.top) - 0.5);
+      }
     };
     window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
     update();
-  }
+  };
+
+  document.querySelectorAll<HTMLElement>('.tl-root').forEach(wireTimeline);
 </script>
 
 <script>
@@ -557,6 +582,29 @@ const stats = [
 </script>
 
 <script>
+  // ── Glow verde seguindo o cursor ─────────────────────────────
+  const glow = document.getElementById("cursor-glow");
+  if (glow && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    let x = window.innerWidth / 2, y = window.innerHeight / 2;
+    let cx = x, cy = y, raf = 0;
+    const render = () => {
+      // easing pra dar um "arraste" suave na sombra
+      cx += (x - cx) * 0.18;
+      cy += (y - cy) * 0.18;
+      glow.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+      raf = requestAnimationFrame(render);
+    };
+    window.addEventListener("pointermove", (e) => {
+      x = e.clientX;
+      y = e.clientY;
+      glow.style.opacity = "1";
+      if (!raf) raf = requestAnimationFrame(render);
+    });
+    window.addEventListener("mouseleave", () => { glow.style.opacity = "0"; });
+  }
+</script>
+
+<script>
   const firstEl  = document.getElementById("typing-first");
   const secondEl = document.getElementById("typing-second");
   const cursor   = document.getElementById("typing-cursor");
@@ -575,7 +623,10 @@ const stats = [
     typeWord(firstEl, "Thales", 400, () => {
       // 2. Move o cursor para a linha 2 e digita "Santana"
       secondEl.after(cursor);
-      typeWord(secondEl, "Santana", 0);
+      typeWord(secondEl, "Santana", 0, () => {
+        // 3. Revela a foto depois que o nome terminou de "digitar"
+        document.getElementById("hero-photo")?.classList.add("revealed");
+      });
     });
   }
 </script>

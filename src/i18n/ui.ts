@@ -23,11 +23,12 @@ export const ui = {
     'footer.builtWith': 'Feito com Astro + Directus',
 
     // Home — hero
-    'home.available': 'Disponível para trabalho',
+    'home.available': 'Disponível para novos projetos',
     'home.hero.title1': 'Software',
     'home.hero.title2': 'Engineer.',
     'home.cta.projects': 'Ver projetos',
     'home.cta.about': 'Sobre mim',
+    'home.cta.contact': 'Falar comigo',
 
     // Home — featured
     'home.featured.eyebrow': 'Trabalhos selecionados',
@@ -138,11 +139,12 @@ export const ui = {
     'footer.builtWith': 'Built with Astro + Directus',
 
     // Home — hero
-    'home.available': 'Available for work',
+    'home.available': 'Available for new projects',
     'home.hero.title1': 'Software',
     'home.hero.title2': 'Engineer.',
     'home.cta.projects': 'View projects',
     'home.cta.about': 'About me',
+    'home.cta.contact': "Let's talk",
 
     // Home — featured
     'home.featured.eyebrow': 'Selected work',
