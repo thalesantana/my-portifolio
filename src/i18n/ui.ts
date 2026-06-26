@@ -20,7 +20,7 @@ export const ui = {
     'lang.switchTo': 'English',
 
     // Footer
-    'footer.builtWith': 'Feito com Astro + Directus',
+    'footer.builtWith': 'Thales Santana',
 
     // Home — hero
     'home.available': 'Disponível para novos projetos',
@@ -137,7 +137,7 @@ export const ui = {
     'lang.switchTo': 'Português',
 
     // Footer
-    'footer.builtWith': 'Built with Astro + Directus',
+    'footer.builtWith': 'Thales Santana',
 
     // Home — hero
     'home.available': 'Available for new projects',

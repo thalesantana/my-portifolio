@@ -7,6 +7,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getProjects, getExperiences, getSiteSettings, assetUrl } from "../../lib/directus";
 import { formatPeriod, sortExperiences } from "../../lib/utils";
 import { t, type Locale } from "../../i18n/ui";
+import { marked } from "marked";
 
 interface Props {
   lang: Locale;
@@ -37,6 +38,8 @@ const avatarFocal = settings?.avatarFocal
   ? `object-position: ${settings.avatarFocal.x}% ${settings.avatarFocal.y}%`
   : undefined;
 
+marked.setOptions({ breaks: true, gfm: true });
+const bioHtml = marked.parse(settings?.bio || t(lang, "about.bioFallback"));
 ---
 
 <BaseLayout title="Portfolio — Software Engineer" description={settings?.role} lang={lang}>
@@ -120,9 +123,10 @@ const avatarFocal = settings?.avatarFocal
             {settings?.role}
           </p>
 
-          <p class="text-on-surface-variant leading-relaxed max-w-xl mb-10">
-            {settings?.bio || t(lang, "about.bioFallback")}
-          </p>
+          <div
+            class="text-on-surface-variant leading-relaxed max-w-xl mb-10 space-y-4 [&_strong]:text-primary [&_strong]:font-semibold"
+            set:html={bioHtml}
+          />
 
           <div class="flex flex-wrap items-center gap-4">
             <a
@@ -376,7 +380,7 @@ const avatarFocal = settings?.avatarFocal
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <!-- Nome -->
               <div>
-                <label for="cf-name" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                <label for="cf-name" class="block text-xs font-mono text-white tracking-widest uppercase mb-2">
                   {t(lang, "contact.form.name")} <span class="text-primary">*</span>
                 </label>
                 <input
@@ -387,7 +391,7 @@ const avatarFocal = settings?.avatarFocal
               </div>
               <!-- Email -->
               <div>
-                <label for="cf-email" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                <label for="cf-email" class="block text-xs font-mono text-white tracking-widest uppercase mb-2">
                   {t(lang, "contact.form.email")} <span class="text-primary">*</span>
                 </label>
                 <input
@@ -398,7 +402,7 @@ const avatarFocal = settings?.avatarFocal
               </div>
               <!-- Telefone -->
               <div>
-                <label for="cf-phone" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                <label for="cf-phone" class="block text-xs font-mono text-white tracking-widest uppercase mb-2">
                   {t(lang, "contact.form.phone")}
                   <span class="text-outline/50 normal-case tracking-normal ml-1">({t(lang, "contact.form.optional")})</span>
                 </label>
@@ -410,7 +414,7 @@ const avatarFocal = settings?.avatarFocal
               </div>
               <!-- Empresa -->
               <div>
-                <label for="cf-company" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+                <label for="cf-company" class="block text-xs font-mono text-white tracking-widest uppercase mb-2">
                   {t(lang, "contact.form.company")}
                   <span class="text-outline/50 normal-case tracking-normal ml-1">({t(lang, "contact.form.optional")})</span>
                 </label>
@@ -424,7 +428,7 @@ const avatarFocal = settings?.avatarFocal
 
             <!-- Mensagem -->
             <div>
-              <label for="cf-message" class="block text-xs font-mono text-outline tracking-widest uppercase mb-2">
+              <label for="cf-message" class="block text-xs font-mono text-white tracking-widest uppercase mb-2">
                 {t(lang, "contact.form.message")} <span class="text-primary">*</span>
               </label>
               <textarea
@@ -655,12 +659,9 @@ const avatarFocal = settings?.avatarFocal
       }, delay);
     }
 
-    // 1. Digita "Thales" na linha 1 (cursor fica na linha 1)
     typeWord(firstEl, "Thales", 400, () => {
-      // 2. Move o cursor para a linha 2 e digita "Santana"
       secondEl.after(cursor);
       typeWord(secondEl, "Santana", 0, () => {
-        // 3. Revela a foto depois que o nome terminou de "digitar"
         document.getElementById("hero-photo")?.classList.add("revealed");
       });
     });
