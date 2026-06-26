@@ -20,6 +20,6 @@ export const TECH_STACK_CATEGORIES: { labelKey: UIKey; stack: string[] }[] = [
   },
   {
     labelKey: 'stack.databases',
-    stack: ['PostgreSQL', 'MongoDB', 'Docker', 'AWS'],
+    stack: ['PostgreSQL', 'MongoDB', 'Docker', 'Cloud'],
   },
 ];
