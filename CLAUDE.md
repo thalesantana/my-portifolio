@@ -16,7 +16,9 @@ Este documento serve como guia de contexto para assistentes de IA (como Claude/A
 
 ## 🌐 i18n (pt-BR / en)
 
-Site bilíngue. **PT na raiz** (`/`, `/projects`, `/about`, `/projects/<slug>`) e **EN sob `/en/`**. Config em `astro.config.mjs` (`i18n` com `defaultLocale: 'pt-BR'`, `prefixDefaultLocale: false`).
+Site bilíngue **one-page** na raiz (`/` com seções `#sobre`/`#experiencias`/`#projetos`/`#hackathons`/`#contato`) + páginas de detalhe `/projects/<slug>`; **EN sob `/en/`**. Config em `astro.config.mjs` (`i18n` com `defaultLocale: 'pt-BR'`, `prefixDefaultLocale: false`).
+
+> 🚫 **Não existe rota de lista `/projects` nem `/about`** (são âncoras na home). Links pra "todos os projetos" vão pra **`${localizedPath("/", lang)}#projetos`**. O breadcrumb e o "todos os projetos" do `ProjectDetail` já usam isso — **nunca** linkar `/projects`/`/about` direto.
 
 - **Páginas compartilhadas**: o corpo de cada página vive em `src/components/pages/*` (`HomePage`/`AboutPage`/`ProjectsPage`/`ProjectDetail`) e recebe a prop `lang`. Os arquivos em `src/pages/` (e `src/pages/en/`) são só "casquinhas" que chamam o componente com o `lang` certo. **Ao mexer no conteúdo de uma página, edite o componente em `pages/`, não a casquinha.**
 - **Strings de UI**: dicionário em `src/i18n/ui.ts` (`t(lang, key)`). Termos técnicos (linguagens/frameworks, GitHub, LinkedIn) **não** são traduzidos. "Tech Stack" → "Tecnologias" no PT.
@@ -45,9 +47,16 @@ O projeto utiliza um sistema de cores customizado definido em `src/styles/global
 - `src/lib/config.ts`: Configurações estáticas (categorias da stack).
 - `src/i18n/`: `ui.ts` (dicionário + `t()`), `routing.ts` (helpers de rota por idioma).
 - `src/components/pages/`: corpo das páginas (recebem `lang`); as rotas em `src/pages/` são casquinhas.
-- `src/components/ui/`: Componentes reutilizáveis (TechChip, ProjectCard).
+- `src/components/ui/`: Componentes reutilizáveis (TechChip, ProjectCard, `TechOrb`).
 - `src/components/layout/`: Header, Footer, LangSwitcher.
 - `scripts/setup-i18n-directus.mjs`: cria/reaplica o schema de traduções no Directus (idempotente).
+
+### 🎬 Hero & animações
+
+- **Hero + Sobre unificados** numa só seção `id="sobre"` (a landing). A arte animada é `src/components/ui/TechOrb.astro` (núcleo "respirando" + chips flutuantes), reusada no desktop (direita) e **atrás do texto no mobile** (`opacity` baixa). Tem typing no nome + foto que dá *pop* depois do typing + glow verde que segue o cursor.
+- **Reveal/parallax on scroll** é utilitário **global na `BaseLayout`**: `data-reveal` (+ `="left"`/`="right"`, var `--d` p/ stagger) e `data-parallax="<speed>"` (IntersectionObserver + rAF, respeita `prefers-reduced-motion`). Qualquer página usa só pondo o atributo.
+- **Timeline** (Experiência) é genérica por classe (`.tl-root`/`.tl-track`/`.tl-fill`/`.tl-dot`/`.tl-node`) — o mesmo script anima desktop **e** mobile; nós são círculos vazados que preenchem conforme o scroll passa.
+- **Cards de projeto** (`ProjectCardHorizontal`, hoje vertical): glass translúcido (`bg-white/[0.06]` + `backdrop-blur`), grid responsivo, e **tilt 3D** seguindo o mouse (script `.tilt-card` no HomePage).
 
 ## ⚙️ Convenções de Código
 
@@ -60,6 +69,7 @@ O projeto utiliza um sistema de cores customizado definido em `src/styles/global
 7.  **Retry de build**: `runRequest` reexecuta as queries (cold start do Railway). Não remover — sem isso o build pega o CMS dormindo e sai vazio.
 8.  **Markdown** (`long_description`, `access_note`): renderizado com `marked` + `set:html`. Não há plugin `typography` — estilize os elementos com arbitrary variants (`[&_h2]:...`, `[&_a]:...`).
 9.  **Assets/capas**: são **"assadas" no build** pela integração `bake-cms-assets` (`astro.config.mjs`) → baixadas pra `dist/cms-assets/<id>` (sem extensão; content-type vai num `_headers` gerado) e servidas pela **CDN da Cloudflare**. `assetUrl()` retorna o caminho local. **Não dependem do Directus acordado em runtime.** Trocar a capa no admin reflete via auto-rebuild. O bake usa o **id** do arquivo (a query do build pega `cover_image` como id, sem expandir).
+10. **`assetUrl()` em dev vs build**: em `import.meta.env.DEV` o `assetUrl()` aponta **direto pro Directus** (`{DIRECTUS_URL}/assets/<id>?access_token=`) porque o bake só roda no build. Em build/prod usa `/cms-assets/<id>`. Se a imagem der 404 em `pnpm dev`, confira `DIRECTUS_URL`/`DIRECTUS_TOKEN` no `.env`.
 
 ## 📄 Gerenciamento de Conteúdo
 
@@ -67,6 +77,10 @@ O conteúdo é dinâmico e vem das coleções:
 - `projects`: Portfólio de projetos.
 - `experiences`: Experiência profissional. Se a **empresa ficar vazia**, a timeline do About mostra **"Freelancer"** automaticamente (`exp.company || t(lang, 'about.career.freelancer')`) — vale pros dois idiomas.
 - `site_settings`: Dados gerais (Bio, Redes Sociais, Contato, Avatar). A foto do About vem de `site_settings.avatar` (via `assetUrl`, com fallback pra um SVG genérico). `avatarFocal` (se existir) vira `object-position` pra ajustar o enquadramento.
+
+> 📝 **`site_settings.bio` é renderizado como Markdown** no hero (HomePage usa `marked` + `set:html`; `[&_strong]:text-primary` deixa trechos em `**negrito**` verdes). Guardado com `**...**` e linhas em branco entre parágrafos — editável no admin.
+
+> ⚠️ **Traduções sobrescrevem o campo base**: a bio (e demais campos traduzíveis) exibida vem de `site_settings.translations` (pt-BR `id:1`, en-US `id:34`), **não** do campo base. Editar só o base **não reflete** — atualize a tradução do idioma.
 
 > 🖼️ **Campo `projects.cover_image`**: é uma **relação M2O com `directus_files`** (`special: ['file']` + relation). Se um dia o admin mostrar **"No Image Selected"** mesmo com capa setada, é sinal de que a relação se perdeu (ex.: re-import de schema) — sem ela, o admin não resolve o arquivo e **salvar apaga a capa**. Recriar: `PATCH /fields/projects/cover_image {"meta":{"special":["file"]}}` + `POST /relations {"collection":"projects","field":"cover_image","related_collection":"directus_files"}`.
 
@@ -76,6 +90,7 @@ O conteúdo é dinâmico e vem das coleções:
 - `pnpm build`: Build estático de produção → gera `dist/`.
 - `pnpm preview`: Serve `dist/` localmente para verificar o output antes do push.
 - `docker compose up -d` / `down`: Sobe/derruba o Directus + Postgres locais.
+- **Editar conteúdo do Directus por script**: `node --env-file=.env script.mjs` (lê `DIRECTUS_URL`/`DIRECTUS_TOKEN` do `.env`). **Sempre** com retry-loop (~8x, 2s) — Railway free responde **500 no cold start**. `site_settings` é singleton (`/items/site_settings`).
 
 ## ☁️ Deploy (Cloudflare Pages)
 
