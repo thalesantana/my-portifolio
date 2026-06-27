@@ -25,13 +25,18 @@ export function formatPeriod(
 
 // ── Sorting ───────────────────────────────────────────────────────────────────
 
-/** Encerradas primeiro (end_date asc), emprego atual por último */
+/** Mais recente primeiro: emprego atual no topo, depois por end_date desc */
 export function sortExperiences(experiences: Experience[]): Experience[] {
   return [...experiences].sort((a, b) => {
-    if (a.current && !b.current) return 1;
-    if (!a.current && b.current) return -1;
-    const aEnd = a.end_date ? new Date(a.end_date).getTime() : 0;
-    const bEnd = b.end_date ? new Date(b.end_date).getTime() : 0;
-    return aEnd - bEnd;
+    if (a.current && !b.current) return -1;
+    if (!a.current && b.current) return 1;
+    // Sem end_date (em andamento) conta como o mais recente.
+    const aEnd = a.end_date ? new Date(a.end_date).getTime() : Infinity;
+    const bEnd = b.end_date ? new Date(b.end_date).getTime() : Infinity;
+    if (aEnd !== bEnd) return bEnd - aEnd;
+    // Empate: desempata por start_date desc.
+    const aStart = a.start_date ? new Date(a.start_date).getTime() : 0;
+    const bStart = b.start_date ? new Date(b.start_date).getTime() : 0;
+    return bStart - aStart;
   });
 }
